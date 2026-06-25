@@ -10,7 +10,9 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    // Store color of piece
     ChessGame.TeamColor p_color;
+    // Store type of piece
     ChessPiece.PieceType p_type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
@@ -31,7 +33,7 @@ public class ChessPiece {
     }
 
     /**
-     * @return Which team this chess piece belongs to
+     * @return which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
         return p_color;
