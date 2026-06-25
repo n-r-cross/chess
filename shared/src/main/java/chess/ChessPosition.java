@@ -9,10 +9,20 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPosition {
+    /**
+     *
+     * @param row row of point to test
+     * @param col column of point to test
+     * @return whether point is inside board boundaries
+     */
+    static public boolean inBounds(int row, int col){
+        return (((row >= 0) && (row <= 7)) && ((col >= 0) && (col <= 7)));
+    }
+
     // Store position row
-    private int p_row;
+    final private int p_row;
     // Store position column
-    private int p_col;
+    final private int p_col;
 
     public ChessPosition(int row, int col) {
         p_row = row-1;
