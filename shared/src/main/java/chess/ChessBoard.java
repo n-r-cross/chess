@@ -39,6 +39,33 @@ public class ChessBoard {
     }
 
     /**
+     *
+     * @param position The position to get the piece's color from
+     * @return The color of the piece at the position on the board, or null if
+     * no piece is at that position
+     */
+    public ChessGame.TeamColor getPieceColor(ChessPosition position) {
+        if(board[position.getRow(true)][position.getColumn(true)] == null) {
+            return null;
+        }
+        return board[position.getRow(true)][position.getColumn(true)].getTeamColor();
+    }
+
+    /**
+     *
+     * @param row Row position of piece
+     * @param col Column position of piece
+     * @return The color of the piece at the position on the board, or null if
+     * no piece is at that position
+     */
+    public ChessGame.TeamColor getPieceColor(int row, int col) {
+        if(board[row][col] == null) {
+            return null;
+        }
+        return board[row][col].getTeamColor();
+    }
+
+    /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
