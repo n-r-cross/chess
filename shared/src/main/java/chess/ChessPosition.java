@@ -9,16 +9,6 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPosition {
-    /**
-     *
-     * @param row row of point to test
-     * @param col column of point to test
-     * @return whether point is inside board boundaries
-     */
-    static public boolean inBounds(int row, int col){
-        return (((row >= 0) && (row <= 7)) && ((col >= 0) && (col <= 7)));
-    }
-
     // Store position row
     final private int p_row;
     // Store position column
@@ -90,6 +80,16 @@ public class ChessPosition {
             return getColumn();
         }
         return p_col;
+    }
+
+    /**
+     *
+     * @param row row of point to test
+     * @param col column of point to test
+     * @return whether point is inside board boundaries
+     */
+    static public boolean inBounds(int row, int col){
+        return (((row >= 0) && (row <= 7)) && ((col >= 0) && (col <= 7)));
     }
 
     @Override
