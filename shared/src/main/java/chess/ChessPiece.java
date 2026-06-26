@@ -41,6 +41,10 @@ public class ChessPiece {
         return p_color;
     }
 
+    public ChessGame.TeamColor getOppColor() {
+        return this.getTeamColor() == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+    }
+
     /**
      * @return which type of chess piece this piece is
      */
@@ -76,13 +80,18 @@ public class ChessPiece {
         switch(p_type){
             case KING:
                 // Generate a possible position
-                // Check if position is inBounds
-                // Check if piece at position
                 for(int i = -1; i <= 1; i++) {
                     for(int j = -1; j <= 1; j++) {
-                        if (ChessPosition.inBounds(myPosition.getRow(true) + i, myPosition.getColumn(true) + j)) {
-                            if (true) { // Add test if piece is at position
-                                ChessPosition e = new ChessPosition(myPosition.getRow(true) + i, myPosition.getColumn(true) + j);
+                        int row = myPosition.getRow(true) + i;
+                        int col = myPosition.getColumn(true) + j;
+                        // System.out.println(row);
+                        // System.out.println(col);
+                        // Check if position is inBounds
+                        if (ChessPosition.inBounds(row,col)) {
+                            // Check if piece at position
+                            ChessGame.TeamColor color = board.getPieceColor(row,col);
+                            if ((color == this.getOppColor()) || (color == null)) { // Add test if piece is at position
+                                ChessPosition e = new ChessPosition(myPosition.getRow(true) + i, myPosition.getColumn(true) + j, true);
                                 c.add(new ChessMove(myPosition, e, null));
                             }
                         }
@@ -115,7 +124,6 @@ public class ChessPiece {
                 // Check if piece at position
                 break;
         }
-        throw new RuntimeException("Not implemented");
-
+        return c;
     }
 }
