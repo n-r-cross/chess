@@ -69,7 +69,6 @@ public class ChessPiece {
     }
 
     private boolean checkPosition(ChessBoard board, int row, int col, boolean canTake) {
-
         if (ChessPosition.inBounds(row, col)) {
             ChessGame.TeamColor color = board.getPieceColor(row, col);
             if (canTake) {
@@ -97,7 +96,6 @@ public class ChessPiece {
         for (int i = -1; i <= 1; i += 2) {
             for (int j = -1; j <= 1; j += 2) {
                 for (int k = 1; ChessPosition.inBounds(row + k * i, col + k * j); k++) {
-                    // System.out.println("R: " + row + " | C: " + col);
                     // Check if piece at position
                     ChessGame.TeamColor color = board.getPieceColor(row + k * i, col + k * j);
                     if ((color == this.getOppColor()) || (color == null)) { // Add test if piece is at position
@@ -127,7 +125,7 @@ public class ChessPiece {
         int row = myPosition.getRow(true);
         int col = myPosition.getColumn(true);
         // Generate a possible position
-        for (int i = -1; i <= 1; i+=2) {
+        for (int i = -1; i <= 1; i += 2) {
             switch (i) {
                 case -1, 1:
                     for (int j = row + i; (ChessPosition.inBounds(j, col)); j += i) {
@@ -159,6 +157,7 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
+        // Create storage container
         Collection<ChessMove> c;
         c = new ArrayList<>();
         // Easier access
@@ -182,6 +181,7 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
+        // Create storage container
         Collection<ChessMove> c;
         c = new ArrayList<>();
         // Easier access
@@ -216,12 +216,12 @@ public class ChessPiece {
                 }
             }
             // Generate and check a possible position
-            if (ChessPosition.inBounds(row+1, col-1)) {
+            if (ChessPosition.inBounds(row + 1, col - 1)) {
                 // Check if piece at position
-                ChessGame.TeamColor color = board.getPieceColor(row+1, col-1);
+                ChessGame.TeamColor color = board.getPieceColor(row + 1, col - 1);
                 if (color == ChessGame.TeamColor.BLACK) { // Add test if piece is at position
-                    ChessPosition e = new ChessPosition(row+1, col-1, true);
-                    if ((row+1) == 7) {
+                    ChessPosition e = new ChessPosition(row + 1, col - 1, true);
+                    if ((row + 1) == 7) {
                         c.addAll(pawnPromotionMoves(myPosition, e));
                     } else {
                         c.add(new ChessMove(myPosition, e, null));
@@ -243,12 +243,12 @@ public class ChessPiece {
                 c.add(new ChessMove(myPosition, e, null));
             }
             // Generate and check a possible position
-            if (ChessPosition.inBounds(row-1, col+1)) {
+            if (ChessPosition.inBounds(row - 1, col + 1)) {
                 // Check if piece at position
-                ChessGame.TeamColor color = board.getPieceColor(row-1, col+1);
+                ChessGame.TeamColor color = board.getPieceColor(row - 1, col + 1);
                 if (color == ChessGame.TeamColor.WHITE) { // Add test if piece is at position
-                    ChessPosition e = new ChessPosition(row-1, col+1, true);
-                    if ((row-1) == 0) {
+                    ChessPosition e = new ChessPosition(row - 1, col + 1, true);
+                    if ((row - 1) == 0) {
                         c.addAll(pawnPromotionMoves(myPosition, e));
                     } else {
                         c.add(new ChessMove(myPosition, e, null));
@@ -256,12 +256,12 @@ public class ChessPiece {
                 }
             }
             // Generate and check a possible position
-            if (ChessPosition.inBounds(row-1, col-1)) {
+            if (ChessPosition.inBounds(row - 1, col - 1)) {
                 // Check if piece at position
-                ChessGame.TeamColor color = board.getPieceColor(row-1, col-1);
+                ChessGame.TeamColor color = board.getPieceColor(row - 1, col - 1);
                 if (color == ChessGame.TeamColor.WHITE) { // Add test if piece is at position
-                    ChessPosition e = new ChessPosition(row-1, col-1, true);
-                    if ((row-1) == 0) {
+                    ChessPosition e = new ChessPosition(row - 1, col - 1, true);
+                    if ((row - 1) == 0) {
                         c.addAll(pawnPromotionMoves(myPosition, e));
                     } else {
                         c.add(new ChessMove(myPosition, e, null));
@@ -273,6 +273,7 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> pawnPromotionMoves(ChessPosition myPos, ChessPosition newPos) {
+        // Create storage container
         Collection<ChessMove> c;
         c = new ArrayList<>();
         c.add(new ChessMove(myPos, newPos, PieceType.ROOK));
@@ -290,7 +291,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        //
+        // Create storage container
         Collection<ChessMove> c;
         c = new ArrayList<>();
         // Easy access to position
@@ -301,7 +302,6 @@ public class ChessPiece {
                 // Generate a possible position
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
-                        // System.out.println("R: " + row + " | C: " + col);
                         if (checkPosition(board, row + i, col + j, true)) {
                             ChessPosition e = new ChessPosition(row + i, col + j, true);
                             c.add(new ChessMove(myPosition, e, null));
@@ -326,11 +326,6 @@ public class ChessPiece {
                 c.addAll(pawnMoves(board, myPosition));
                 break;
         }
-        /*
-        for (ChessMove i : c) {
-            System.out.println(i);
-        }
-        */
         return c;
     }
 }
