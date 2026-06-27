@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+import static java.lang.Math.abs;
+
 /**
  * Represents a single chess piece
  * <p>
@@ -125,7 +127,7 @@ public class ChessPiece {
         int row = myPosition.getRow(true);
         int col = myPosition.getColumn(true);
         // Generate a possible position
-        for (int i = -1; i <= 1; i++) {
+        for (int i = -1; i <= 1; i+=2) {
             switch (i) {
                 case -1, 1:
                     for (int j = row + i; (ChessPosition.inBounds(j, col)); j += i) {
@@ -139,20 +141,7 @@ public class ChessPiece {
                             break;
                         }
                     }
-                    break;
-                case 0:
-                    for (int j = col + 1; (ChessPosition.inBounds(row, j)); j += 1) {
-                        // Check if piece at position
-                        ChessGame.TeamColor color = board.getPieceColor(row, j);
-                        if ((color == this.getOppColor()) || (color == null)) { // Add test if piece is at position
-                            ChessPosition e = new ChessPosition(row, j, true);
-                            c.add(new ChessMove(myPosition, e, null));
-                        }
-                        if (color != null) {
-                            break;
-                        }
-                    }
-                    for (int j = col - 1; (ChessPosition.inBounds(row, j)); j -= 1) {
+                    for (int j = col + i; (ChessPosition.inBounds(row, j)); j += i) {
                         // Check if piece at position
                         ChessGame.TeamColor color = board.getPieceColor(row, j);
                         if ((color == this.getOppColor()) || (color == null)) { // Add test if piece is at position
@@ -177,27 +166,16 @@ public class ChessPiece {
         int col = myPosition.getColumn(true);
         // Generate a possible position
         for (int i = -2; i <= 2; i++) {
-            switch (i) {
-                case -2, 2:
-                    for (int j = -1; j <= 1; j += 2) {
-                        // System.out.println("R: " + row + " | C: " + col);
-                        if (checkPosition(board, row + i, col + j, true)) {
-                            ChessPosition e = new ChessPosition(row + i, col + j, true);
-                            c.add(new ChessMove(myPosition, e, null));
-                        }
-                    }
+            int k = abs(i) == 2 ? 1 : 2;
+            for (int j = -k; j <= k; j += (2 * k)) {
+                if (i == 0) {
                     break;
-                case -1, 1:
-                    for (int j = -2; j <= 2; j += 4) {
-                        // System.out.println("R: " + row + " | C: " + col);
-                        if (checkPosition(board, row + i, col + j, true)) {
-                            ChessPosition e = new ChessPosition(row + i, col + j, true);
-                            c.add(new ChessMove(myPosition, e, null));
-                        }
-                    }
-                    break;
-                case 0:
-                    break;
+                }
+                // System.out.println("R: " + row + " | C: " + col);
+                if (checkPosition(board, row + i, col + j, true)) {
+                    ChessPosition e = new ChessPosition(row + i, col + j, true);
+                    c.add(new ChessMove(myPosition, e, null));
+                }
             }
         }
         return c;
@@ -237,16 +215,13 @@ public class ChessPiece {
                     }
                 }
             }
-            // Generate a possible position
-            row = myPosition.getRow(true) + 1;
-            col = myPosition.getColumn(true) - 1;
-            // Check if position is inBounds
-            if (ChessPosition.inBounds(row, col)) {
+            // Generate and check a possible position
+            if (ChessPosition.inBounds(row+1, col-1)) {
                 // Check if piece at position
-                ChessGame.TeamColor color = board.getPieceColor(row, col);
+                ChessGame.TeamColor color = board.getPieceColor(row+1, col-1);
                 if (color == ChessGame.TeamColor.BLACK) { // Add test if piece is at position
-                    ChessPosition e = new ChessPosition(row, col, true);
-                    if (row == 7) {
+                    ChessPosition e = new ChessPosition(row+1, col-1, true);
+                    if ((row+1) == 7) {
                         c.addAll(pawnPromotionMoves(myPosition, e));
                     } else {
                         c.add(new ChessMove(myPosition, e, null));
@@ -267,32 +242,26 @@ public class ChessPiece {
                 ChessPosition e = new ChessPosition(row - 2, col, true);
                 c.add(new ChessMove(myPosition, e, null));
             }
-            // Generate a possible position
-            row = myPosition.getRow(true) - 1;
-            col = myPosition.getColumn(true) + 1;
-            // Check if position is inBounds
-            if (ChessPosition.inBounds(row, col)) {
+            // Generate and check a possible position
+            if (ChessPosition.inBounds(row-1, col+1)) {
                 // Check if piece at position
-                ChessGame.TeamColor color = board.getPieceColor(row, col);
+                ChessGame.TeamColor color = board.getPieceColor(row-1, col+1);
                 if (color == ChessGame.TeamColor.WHITE) { // Add test if piece is at position
-                    ChessPosition e = new ChessPosition(row, col, true);
-                    if (row == 0) {
+                    ChessPosition e = new ChessPosition(row-1, col+1, true);
+                    if ((row-1) == 0) {
                         c.addAll(pawnPromotionMoves(myPosition, e));
                     } else {
                         c.add(new ChessMove(myPosition, e, null));
                     }
                 }
             }
-            // Generate a possible position
-            row = myPosition.getRow(true) - 1;
-            col = myPosition.getColumn(true) - 1;
-            // Check if position is inBounds
-            if (ChessPosition.inBounds(row, col)) {
+            // Generate and check a possible position
+            if (ChessPosition.inBounds(row-1, col-1)) {
                 // Check if piece at position
-                ChessGame.TeamColor color = board.getPieceColor(row, col);
+                ChessGame.TeamColor color = board.getPieceColor(row-1, col-1);
                 if (color == ChessGame.TeamColor.WHITE) { // Add test if piece is at position
-                    ChessPosition e = new ChessPosition(row, col, true);
-                    if (row == 0) {
+                    ChessPosition e = new ChessPosition(row-1, col-1, true);
+                    if ((row-1) == 0) {
                         c.addAll(pawnPromotionMoves(myPosition, e));
                     } else {
                         c.add(new ChessMove(myPosition, e, null));
@@ -357,11 +326,11 @@ public class ChessPiece {
                 c.addAll(pawnMoves(board, myPosition));
                 break;
         }
-        ///*
+        /*
         for (ChessMove i : c) {
             System.out.println(i);
         }
-        //*/
+        */
         return c;
     }
 }
