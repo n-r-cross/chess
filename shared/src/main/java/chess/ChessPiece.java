@@ -101,9 +101,67 @@ public class ChessPiece {
                 }
                 break;
             case QUEEN:
+                row = myPosition.getRow(true);
+                col = myPosition.getColumn(true);
                 // Generate a possible position
-                // Check if position is inBounds
-                // Check if piece at position
+                for(int i = -1; i <= 1; i += 2){
+                    for(int j = -1; j <= 1; j += 2){
+                        for(int k = 1; ChessPosition.inBounds(row+k*i,col+k*j); k++){
+                            // System.out.println("R: " + row + " | C: " + col);
+                            // Check if piece at position
+                            ChessGame.TeamColor color = board.getPieceColor(row+k*i,col+k*j);
+                            if ((color == this.getOppColor()) || (color == null)) { // Add test if piece is at position
+                                ChessPosition e = new ChessPosition(row+k*i,col+k*j, true);
+                                c.add(new ChessMove(myPosition, e, null));
+                            }
+                            if (color != null) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                // Generate a possible position
+                for (int i = -1; i <= 1; i++) {
+                    switch (i) {
+                        case -1,1:
+                            for (int j = row + i; (ChessPosition.inBounds(j,col)); j += i) {
+                                // Check if piece at position
+                                ChessGame.TeamColor color = board.getPieceColor(j, col);
+                                if ((color == this.getOppColor()) || (color == null)) { // Add test if piece is at position
+                                    ChessPosition e = new ChessPosition(j, col, true);
+                                    c.add(new ChessMove(myPosition, e, null));
+                                }
+                                if (color != null) {
+                                    break;
+                                }
+                            }
+                            break;
+                        case 0:
+                            for (int j = col+1; (ChessPosition.inBounds(row,j)); j += 1) {
+                                // Check if piece at position
+                                ChessGame.TeamColor color = board.getPieceColor(row, j);
+                                if ((color == this.getOppColor()) || (color == null)) { // Add test if piece is at position
+                                    ChessPosition e = new ChessPosition(row, j, true);
+                                    c.add(new ChessMove(myPosition, e, null));
+                                }
+                                if (color != null) {
+                                    break;
+                                }
+                            }
+                            for (int j = col-1; (ChessPosition.inBounds(row,j)); j -= 1) {
+                                // Check if piece at position
+                                ChessGame.TeamColor color = board.getPieceColor(row, j);
+                                if ((color == this.getOppColor()) || (color == null)) { // Add test if piece is at position
+                                    ChessPosition e = new ChessPosition(row, j, true);
+                                    c.add(new ChessMove(myPosition, e, null));
+                                }
+                                if (color != null) {
+                                    break;
+                                }
+                            }
+                            break;
+                    }
+                }
                 break;
             case BISHOP:
                 row = myPosition.getRow(true);
@@ -125,8 +183,6 @@ public class ChessPiece {
                         }
                     }
                 }
-                // Check if position is inBounds
-                // Check if piece at position
                 break;
             case KNIGHT:
                 // Generate a possible position
@@ -210,11 +266,9 @@ public class ChessPiece {
                                     break;
                                 }
                             }
-
                             break;
                     }
                 }
-
                 break;
             case PAWN:
                 // Generate a possible position
