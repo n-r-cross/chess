@@ -10,29 +10,29 @@ import java.util.Objects;
  */
 public class ChessPosition {
     // Store position row
-    final private int p_row;
+    final private int row;
     // Store position column
-    final private int p_col;
+    final private int col;
 
     public ChessPosition(int row, int col) {
-        p_row = row - 1;
-        p_col = col - 1;
+        this.row = row - 1;
+        this.col = col - 1;
     }
 
     /**
      *
      * @param row        row index
      * @param col        column index
-     * @param zero_index whether row and
+     * @param zeroIndex whether row and
      *                   col are 0-indexed
      */
-    public ChessPosition(int row, int col, boolean zero_index) {
-        if (zero_index) {
-            p_row = row;
-            p_col = col;
+    public ChessPosition(int row, int col, boolean zeroIndex) {
+        if (zeroIndex) {
+            this.row = row;
+            this.col = col;
         } else {
-            p_row = row - 1;
-            p_col = col - 1;
+            this.row = row - 1;
+            this.col = col - 1;
         }
     }
 
@@ -41,22 +41,22 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        return p_row + 1;
+        return row + 1;
     }
 
     /**
      *
-     * @param zero_index whether to return
+     * @param zeroIndex whether to return
      *                   1-indexed or
      *                   0-indexed
      * @return which row this position is in
      * 1 codes for the bottom row
      */
-    public int getRow(boolean zero_index) {
-        if (!zero_index) {
+    public int getRow(boolean zeroIndex) {
+        if (!zeroIndex) {
             return getRow();
         }
-        return p_row;
+        return row;
     }
 
     /**
@@ -64,22 +64,22 @@ public class ChessPosition {
      * 1 codes for the left column
      */
     public int getColumn() {
-        return p_col + 1;
+        return col + 1;
     }
 
     /**
      *
-     * @param zero_index whether to return
+     * @param zeroIndex whether to return
      *                   1-indexed or
      *                   0-indexed
      * @return which row this position is in
      * 1 codes for the bottom row
      */
-    public int getColumn(boolean zero_index) {
-        if (!zero_index) {
+    public int getColumn(boolean zeroIndex) {
+        if (!zeroIndex) {
             return getColumn();
         }
-        return p_col;
+        return col;
     }
 
     /**
@@ -98,11 +98,11 @@ public class ChessPosition {
             return false;
         }
         ChessPosition that = (ChessPosition) o;
-        return p_row == that.p_row && p_col == that.p_col;
+        return row == that.row && col == that.col;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(p_row, p_col);
+        return Objects.hash(row, col);
     }
 }
