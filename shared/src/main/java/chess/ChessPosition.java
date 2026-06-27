@@ -84,8 +84,8 @@ public class ChessPosition {
 
     /**
      *
-     * @param row row of point to test
-     * @param col column of point to test
+     * @param row row of point to test (assumes zero-indexed)
+     * @param col column of point to test (assumes zero-indexed)
      * @return whether point is inside board boundaries
      */
     static public boolean inBounds(int row, int col){
