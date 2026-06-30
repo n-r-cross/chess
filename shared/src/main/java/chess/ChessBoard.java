@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -17,6 +18,13 @@ public class ChessBoard {
         board = new ChessPiece[8][8];
     }
 
+    public ChessBoard(ChessBoard copy) {
+        board = new ChessPiece[8][];
+        for(int i = 0; i <= 7; i++){
+            board[i] = Arrays.copyOf(copy.getBoard()[i], copy.getBoard()[i].length);
+        }
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
@@ -25,6 +33,12 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         board[position.getRow(true)][position.getColumn(true)] = piece;
+    }
+
+    public void removePiece(ChessPosition pos) {
+        int row = pos.getRow(true);
+        int col = pos.getColumn(true);
+        board[row][col] = null;
     }
 
     /**
@@ -36,6 +50,10 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         return board[position.getRow(true)][position.getColumn(true)];
+    }
+
+    public ChessPiece[][] getBoard() {
+        return board;
     }
 
     /**
@@ -63,6 +81,10 @@ public class ChessBoard {
             return null;
         }
         return board[row][col].getTeamColor();
+    }
+
+    public Collection<ChessMove> getPieceMoves(ChessPosition pos) {
+        return getPiece(pos).pieceMoves(this,pos);
     }
 
     /**
