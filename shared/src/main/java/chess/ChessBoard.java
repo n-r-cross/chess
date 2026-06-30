@@ -52,6 +52,18 @@ public class ChessBoard {
         return board[position.getRow(true)][position.getColumn(true)];
     }
 
+    /**
+     * Gets a chess piece on the chessboard
+     *
+     * @param row The row to get the piece from (zero-indexed)
+     * @param col The column to get the piece from (zero-indexed)
+     * @return Either the piece at the position, or null if no piece is at that
+     * position
+     */
+    public ChessPiece getPiece(int row, int col) {
+        return board[row][col];
+    }
+
     public ChessPiece[][] getBoard() {
         return board;
     }
@@ -83,8 +95,26 @@ public class ChessBoard {
         return board[row][col].getTeamColor();
     }
 
+    /**
+     * Get the moves that the piece can make
+     *
+     * @param pos Position of piece to get moves from
+     * @return The moves that the piece at the given positions
+     * can make
+     */
     public Collection<ChessMove> getPieceMoves(ChessPosition pos) {
         return getPiece(pos).pieceMoves(this,pos);
+    }
+
+    public ChessPosition getKingPosition(ChessGame.TeamColor color) {
+        for(int i = 0; i <= 7; i++){
+            for(int j = 0; j <= 7; j++) {
+                if ((getPiece(i,j).getPieceType() == ChessPiece.PieceType.KING) && (getPiece(i,j).getTeamColor() == color)) {
+                    return new ChessPosition(i, j, true);
+                }
+            }
+        }
+        return null;
     }
 
     /**
