@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -49,6 +50,20 @@ public class ChessGame {
         return TeamColor.WHITE;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return turn == chessGame.turn && Objects.equals(getBoard(), chessGame.getBoard());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(turn, getBoard());
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -88,7 +103,25 @@ public class ChessGame {
             String msg = "Tried to move " + pieceColor + " colored piece on " + getTeamTurn() + " turn";
             throw new InvalidMoveException(msg);
         }
-        throw new RuntimeException("Not implemented");
+        boolean validated = false;
+        Collection<ChessMove> c = validMoves(move.getStartPosition());
+        for(ChessMove i : c) {
+            if (move.equals(i)) {
+                validated = true;
+                break;
+            }
+        }
+        if(!validated) {
+            String msg = move + " is invalid!";
+            throw new InvalidMoveException(msg);
+        }
+        board.removePiece(move.getEndPosition());
+        ChessPiece.PieceType type = move.getPromotionPiece();
+        if(type != null){
+            board.addPiece(move.getEndPosition(),new ChessPiece(pieceColor,type));
+        } else {
+            board.addPiece(move.getEndPosition(),board.getPiece(move.getStartPosition()));
+        }
     }
 
     /**
