@@ -14,7 +14,9 @@ public class ChessGame {
     private ChessBoard board;
 
     public ChessGame() {
-
+        board = new ChessBoard();
+        board.resetBoard();
+        turn = TeamColor.WHITE;
     }
 
     /**
@@ -31,6 +33,20 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         turn = team;
+    }
+
+    /**
+     * Sets turn to the next teams turn
+     *
+     * @return Which teams turn it now is
+     */
+    public TeamColor nextTurn() {
+        if(getTeamTurn() == TeamColor.WHITE){
+            setTeamTurn(TeamColor.BLACK);
+            return TeamColor.BLACK;
+        }
+        setTeamTurn(TeamColor.WHITE);
+        return TeamColor.WHITE;
     }
 
     /**
@@ -65,6 +81,13 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        int row = move.getStartPosition().getRow(true);
+        int col = move.getStartPosition().getColumn(true);
+        TeamColor pieceColor = board.getPieceColor(row,col);
+        if(pieceColor != getTeamTurn()) {
+            String msg = "Tried to move " + pieceColor + " colored piece on " + getTeamTurn() + " turn";
+            throw new InvalidMoveException(msg);
+        }
         throw new RuntimeException("Not implemented");
     }
 
