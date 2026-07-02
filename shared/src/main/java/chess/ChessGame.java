@@ -222,14 +222,14 @@ public class ChessGame {
         return true;
     }
 
-    private boolean testForValidMove(TeamColor teamColor) {
+    private boolean testNoValidMove(TeamColor teamColor) {
         Collection<ChessMove> teamMoves = allValidMoves(teamColor);
         for (ChessMove move : teamMoves) {
             if(testNotInCheck(teamColor, move)){
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -239,7 +239,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return (!testForValidMove(teamColor) && isInCheck(teamColor));
+        return (testNoValidMove(teamColor) && isInCheck(teamColor));
     }
 
     /**
@@ -250,7 +250,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return (testNoValidMove(teamColor) && !isInCheck(teamColor));
     }
 
     /**
