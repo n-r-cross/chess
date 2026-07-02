@@ -86,7 +86,7 @@ public class ChessGame {
         Collection<ChessMove> valid = new ArrayList<>();
         // Filter moves that put/leave king in check
         for(ChessMove move : c) {
-            if(!testForCheck(board.getPieceColor(startPosition),move)) {
+            if(testNotInCheck(board.getPieceColor(startPosition), move)) {
                 valid.add(move);
             }
         }
@@ -209,13 +209,23 @@ public class ChessGame {
      * @return True if the specified team would be in
      * check if move were completed (and move is invalid)
      */
-    private boolean testForCheck(TeamColor teamColor, ChessMove testMove) {
+    private boolean testNotInCheck(TeamColor teamColor, ChessMove testMove) {
         TeamColor oppColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         ChessBoard testBoard = new ChessBoard(board);
         makeTestMove(testMove,testBoard);
         Collection<ChessMove> c = allValidTestMoves(oppColor,testBoard);
         for (ChessMove move : c){
             if(move.getEndPosition().equals(testBoard.getKingPosition(teamColor))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean testForValidMove(TeamColor teamColor) {
+        Collection<ChessMove> teamMoves = allValidMoves(teamColor);
+        for (ChessMove move : teamMoves) {
+            if(testNotInCheck(teamColor, move)){
                 return true;
             }
         }
@@ -229,7 +239,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return (!testForValidMove(teamColor) && isInCheck(teamColor));
     }
 
     /**
