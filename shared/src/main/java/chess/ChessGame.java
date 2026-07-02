@@ -43,8 +43,9 @@ public class ChessGame {
     public void nextTurn() {
         if(getTeamTurn() == TeamColor.WHITE){
             setTeamTurn(TeamColor.BLACK);
+        } else {
+            setTeamTurn(TeamColor.WHITE);
         }
-        setTeamTurn(TeamColor.WHITE);
     }
 
     @Override
@@ -85,7 +86,7 @@ public class ChessGame {
         Collection<ChessMove> valid = new ArrayList<>();
         // Filter moves that put/leave king in check
         for(ChessMove move : c) {
-            if(!testForCheck(getTeamTurn(),move)) {
+            if(!testForCheck(board.getPieceColor(startPosition),move)) {
                 valid.add(move);
             }
         }
