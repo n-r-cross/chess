@@ -15,6 +15,16 @@ public class ChessGame {
     private TeamColor turn;
     private ChessBoard board;
 
+    // Store whether pieces have moved to track castling
+    private boolean whiteKingMoved = false;
+    private boolean whiteLeftRookMoved = false;
+    private boolean whiteRightRookMoved = false;
+    private boolean blackKingMoved = false;
+    private boolean blackLeftRookMoved = false;
+    private boolean blackRightRookMoved = false;
+
+
+
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
@@ -157,6 +167,27 @@ public class ChessGame {
             String msg = move + " is invalid!";
             throw new InvalidMoveException(msg);
         }
+        // Check if rook or king moved, and update castling monitor
+        if(!whiteKingMoved && (row == 0) && (col == 4)) {
+            whiteKingMoved = true;
+        }
+        if(!blackKingMoved && (row == 7) && (col == 4)) {
+            blackKingMoved = true;
+        }
+        if(!whiteLeftRookMoved && (row == 0) && (col == 0)) {
+            whiteLeftRookMoved = true;
+        }
+        if(!whiteRightRookMoved && (row == 0) && (col == 7)) {
+            whiteRightRookMoved = true;
+        }
+        if(!blackLeftRookMoved && (row == 7) && (col == 0)) {
+            blackLeftRookMoved = true;
+        }
+        if(!blackRightRookMoved && (row == 7) && (col == 7)) {
+            blackRightRookMoved = true;
+        }
+        // TODO: check if pawn moved two spaces, and update en passant monitor
+
         board.removePiece(move.getEndPosition());
         ChessPiece.PieceType type = move.getPromotionPiece();
         if(type != null){
