@@ -24,7 +24,6 @@ public class ChessGame {
     private boolean blackRightRookMoved = false;
 
 
-
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
@@ -51,7 +50,7 @@ public class ChessGame {
      * Sets turn to the next teams turn
      */
     public void nextTurn() {
-        if(getTeamTurn() == TeamColor.WHITE){
+        if (getTeamTurn() == TeamColor.WHITE) {
             setTeamTurn(TeamColor.BLACK);
         } else {
             setTeamTurn(TeamColor.WHITE);
@@ -80,6 +79,25 @@ public class ChessGame {
         BLACK
     }
 
+    private Collection<ChessMove> validCastlingMoves(ChessPosition startPosition) {
+        Collection<ChessMove> c = new ArrayList<>();
+        if (board.getPiece(startPosition).getTeamColor() == TeamColor.WHITE) {
+            if (whiteKingMoved) { return c; }
+            if (!whiteLeftRookMoved) {
+                c.add(new ChessMove(startPosition, new ChessPosition(0,
+                        startPosition.getColumn(true) - 2, true), null));
+            }
+            if (!whiteRightRookMoved) {
+                c.add(new ChessMove(startPosition, new ChessPosition(0,
+                        startPosition.getColumn(true) + 2, true), null));
+            }
+        } else {
+            if(blackKingMoved) { return c;}
+        }
+
+        return c;
+    }
+
     /**
      * Gets all valid moves for a piece at the given location
      *
@@ -88,15 +106,18 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        if(board.getPiece(startPosition) == null){
+        if (board.getPiece(startPosition) == null) {
             return null;
         }
         Collection<ChessMove> c;
         c = board.getPieceMoves(startPosition);
+        if (board.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.KING) {
+            c.addAll(validCastlingMoves(startPosition));
+        }
         Collection<ChessMove> valid = new ArrayList<>();
         // Filter moves that put/leave king in check
-        for(ChessMove move : c) {
-            if(testNotInCheck(board.getPieceColor(startPosition), move)) {
+        for (ChessMove move : c) {
+            if (testNotInCheck(board.getPieceColor(startPosition), move)) {
                 valid.add(move);
             }
         }
@@ -105,7 +126,7 @@ public class ChessGame {
     }
 
     private Collection<ChessMove> validTestMoves(ChessPosition startPosition, ChessBoard testBoard) {
-        if(testBoard.getPiece(startPosition) == null){
+        if (testBoard.getPiece(startPosition) == null) {
             return null;
         }
         Collection<ChessMove> c;
@@ -115,8 +136,8 @@ public class ChessGame {
 
     public Collection<ChessMove> allValidMoves(TeamColor color) {
         Collection<ChessMove> c = new ArrayList<>();
-        for(int i = 0; i <= 7; i++){
-            for(int j = 0; j <= 7; j++) {
+        for (int i = 0; i <= 7; i++) {
+            for (int j = 0; j <= 7; j++) {
                 if (board.getPieceColor(i, j) == color) {
                     c.addAll(validMoves(new ChessPosition(i, j, true)));
                 }
@@ -127,11 +148,11 @@ public class ChessGame {
 
     public Collection<ChessMove> allValidTestMoves(TeamColor color, ChessBoard testBoard) {
         Collection<ChessMove> c = new ArrayList<>();
-        for(int i = 0; i <= 7; i++){
-            for(int j = 0; j <= 7; j++) {
+        for (int i = 0; i <= 7; i++) {
+            for (int j = 0; j <= 7; j++) {
                 if (testBoard.getPieceColor(i, j) == color) {
-                    Collection<ChessMove> valid = validTestMoves(new ChessPosition(i, j, true),testBoard);
-                    if(valid != null) {
+                    Collection<ChessMove> valid = validTestMoves(new ChessPosition(i, j, true), testBoard);
+                    if (valid != null) {
                         c.addAll(valid);
                     }
                 }
@@ -141,59 +162,59 @@ public class ChessGame {
     }
 
 
-        /**
-         * Makes a move in the chess game
-         *
-         * @param move chess move to perform
-         * @throws InvalidMoveException if move is invalid
-         */
+    /**
+     * Makes a move in the chess game
+     *
+     * @param move chess move to perform
+     * @throws InvalidMoveException if move is invalid
+     */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         int row = move.getStartPosition().getRow(true);
         int col = move.getStartPosition().getColumn(true);
-        TeamColor pieceColor = board.getPieceColor(row,col);
-        if(pieceColor != getTeamTurn()) {
+        TeamColor pieceColor = board.getPieceColor(row, col);
+        if (pieceColor != getTeamTurn()) {
             String msg = "Tried to move " + pieceColor + " colored piece on " + getTeamTurn() + " turn";
             throw new InvalidMoveException(msg);
         }
         boolean validated = false;
         Collection<ChessMove> c = validMoves(move.getStartPosition());
-        for(ChessMove i : c) {
+        for (ChessMove i : c) {
             if (move.equals(i)) {
                 validated = true;
                 break;
             }
         }
-        if(!validated) {
+        if (!validated) {
             String msg = move + " is invalid!";
             throw new InvalidMoveException(msg);
         }
         // Check if rook or king moved, and update castling monitor
-        if(!whiteKingMoved && (row == 0) && (col == 4)) {
+        if (!whiteKingMoved && (row == 0) && (col == 4)) {
             whiteKingMoved = true;
         }
-        if(!blackKingMoved && (row == 7) && (col == 4)) {
+        if (!blackKingMoved && (row == 7) && (col == 4)) {
             blackKingMoved = true;
         }
-        if(!whiteLeftRookMoved && (row == 0) && (col == 0)) {
+        if (!whiteLeftRookMoved && (row == 0) && (col == 0)) {
             whiteLeftRookMoved = true;
         }
-        if(!whiteRightRookMoved && (row == 0) && (col == 7)) {
+        if (!whiteRightRookMoved && (row == 0) && (col == 7)) {
             whiteRightRookMoved = true;
         }
-        if(!blackLeftRookMoved && (row == 7) && (col == 0)) {
+        if (!blackLeftRookMoved && (row == 7) && (col == 0)) {
             blackLeftRookMoved = true;
         }
-        if(!blackRightRookMoved && (row == 7) && (col == 7)) {
+        if (!blackRightRookMoved && (row == 7) && (col == 7)) {
             blackRightRookMoved = true;
         }
         // TODO: check if pawn moved two spaces, and update en passant monitor
 
         board.removePiece(move.getEndPosition());
         ChessPiece.PieceType type = move.getPromotionPiece();
-        if(type != null){
-            board.addPiece(move.getEndPosition(),new ChessPiece(pieceColor,type));
+        if (type != null) {
+            board.addPiece(move.getEndPosition(), new ChessPiece(pieceColor, type));
         } else {
-            board.addPiece(move.getEndPosition(),board.getPiece(move.getStartPosition()));
+            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
         }
         board.removePiece(move.getStartPosition());
         nextTurn();
@@ -202,13 +223,13 @@ public class ChessGame {
     public void makeTestMove(ChessMove move, ChessBoard testBoard) {
         int row = move.getStartPosition().getRow(true);
         int col = move.getStartPosition().getColumn(true);
-        TeamColor pieceColor = testBoard.getPieceColor(row,col);
+        TeamColor pieceColor = testBoard.getPieceColor(row, col);
         testBoard.removePiece(move.getEndPosition());
         ChessPiece.PieceType type = move.getPromotionPiece();
-        if(type != null){
-            testBoard.addPiece(move.getEndPosition(),new ChessPiece(pieceColor,type));
+        if (type != null) {
+            testBoard.addPiece(move.getEndPosition(), new ChessPiece(pieceColor, type));
         } else {
-            testBoard.addPiece(move.getEndPosition(),testBoard.getPiece(move.getStartPosition()));
+            testBoard.addPiece(move.getEndPosition(), testBoard.getPiece(move.getStartPosition()));
         }
         testBoard.removePiece(move.getStartPosition());
     }
@@ -223,8 +244,8 @@ public class ChessGame {
         TeamColor oppColor = teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
         Collection<ChessMove> c = allValidMoves(oppColor);
         ChessPosition kingPosition = board.getKingPosition(teamColor);
-        for (ChessMove move : c){
-            if(move.getEndPosition().equals(kingPosition)) {
+        for (ChessMove move : c) {
+            if (move.getEndPosition().equals(kingPosition)) {
                 return true;
             }
         }
@@ -236,17 +257,17 @@ public class ChessGame {
      * if a given move were completed
      *
      * @param teamColor which team to check for check
-     * @param testMove which move to check for check
+     * @param testMove  which move to check for check
      * @return True if the specified team would be in
      * check if move were completed (and move is invalid)
      */
     private boolean testNotInCheck(TeamColor teamColor, ChessMove testMove) {
         TeamColor oppColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         ChessBoard testBoard = new ChessBoard(board);
-        makeTestMove(testMove,testBoard);
-        Collection<ChessMove> c = allValidTestMoves(oppColor,testBoard);
-        for (ChessMove move : c){
-            if(move.getEndPosition().equals(testBoard.getKingPosition(teamColor))) {
+        makeTestMove(testMove, testBoard);
+        Collection<ChessMove> c = allValidTestMoves(oppColor, testBoard);
+        for (ChessMove move : c) {
+            if (move.getEndPosition().equals(testBoard.getKingPosition(teamColor))) {
                 return false;
             }
         }
@@ -256,7 +277,7 @@ public class ChessGame {
     private boolean testNoValidMove(TeamColor teamColor) {
         Collection<ChessMove> teamMoves = allValidMoves(teamColor);
         for (ChessMove move : teamMoves) {
-            if(testNotInCheck(teamColor, move)){
+            if (testNotInCheck(teamColor, move)) {
                 return false;
             }
         }
