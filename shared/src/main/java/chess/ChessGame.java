@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+import static java.lang.Math.abs;
+
 /**
  * A class that can manage a chess game, making moves on a board
  * <p>
@@ -79,20 +81,56 @@ public class ChessGame {
         BLACK
     }
 
+    private ChessMove checkCastlingMove(ChessPosition kingPos, ChessPosition rookPos) {
+        int direction = rookPos.getColumn(true) - kingPos.getColumn(true);
+        direction = direction / abs(direction);
+        for(int i = kingPos.getColumn(true) + direction;
+            i != rookPos.getColumn(true); i+=direction) {
+            if(board.getPiece(kingPos.getRow(true),i) != null) {
+                return null;
+            }
+        }
+        ChessPosition oneOver = new ChessPosition(kingPos.getRow(),kingPos.getColumn()+direction);
+        ChessPosition twoOver = new ChessPosition(kingPos.getRow(),kingPos.getColumn()+2*direction);
+        if(!testNotInCheck(board.getPieceColor(kingPos),new ChessMove(kingPos,oneOver,null))){
+            return null;
+        }
+        if(!testNotInCheck(board.getPieceColor(kingPos),new ChessMove(kingPos,twoOver,null))){
+            return null;
+        }
+        return new ChessMove(kingPos,twoOver,null);
+    }
+
     private Collection<ChessMove> validCastlingMoves(ChessPosition startPosition) {
         Collection<ChessMove> c = new ArrayList<>();
         if (board.getPiece(startPosition).getTeamColor() == TeamColor.WHITE) {
             if (whiteKingMoved) { return c; }
             if (!whiteLeftRookMoved) {
-                c.add(new ChessMove(startPosition, new ChessPosition(0,
-                        startPosition.getColumn(true) - 2, true), null));
+                ChessMove move = checkCastlingMove(startPosition,new ChessPosition(0,0,true));
+                if(move != null) {
+                    c.add(move);
+                }
             }
             if (!whiteRightRookMoved) {
-                c.add(new ChessMove(startPosition, new ChessPosition(0,
-                        startPosition.getColumn(true) + 2, true), null));
+                ChessMove move = checkCastlingMove(startPosition,new ChessPosition(0,7,true));
+                if(move != null) {
+                    c.add(move);
+                }
             }
         } else {
             if(blackKingMoved) { return c;}
+            if (!blackLeftRookMoved) {
+                ChessMove move = checkCastlingMove(startPosition,new ChessPosition(7,0,true));
+                if(move != null) {
+                    c.add(move);
+                }
+            }
+            if (!blackRightRookMoved) {
+                ChessMove move = checkCastlingMove(startPosition,new ChessPosition(7,7,true));
+                if(move != null) {
+                    c.add(move);
+                }
+            }
         }
 
         return c;
@@ -111,8 +149,11 @@ public class ChessGame {
         }
         Collection<ChessMove> c;
         c = board.getPieceMoves(startPosition);
-        if (board.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.KING) {
-            c.addAll(validCastlingMoves(startPosition));
+        if ((board.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.KING) &&
+                ((startPosition.equals(new ChessPosition(0,4)))
+                        || (startPosition.equals(new ChessPosition(7,4)))) &&
+                testNotInCheck(board.getPieceColor(startPosition),new ChessMove(startPosition,startPosition,null))) {
+             c.addAll(validCastlingMoves(startPosition));
         }
         Collection<ChessMove> valid = new ArrayList<>();
         // Filter moves that put/leave king in check
@@ -188,12 +229,55 @@ public class ChessGame {
             String msg = move + " is invalid!";
             throw new InvalidMoveException(msg);
         }
-        // Check if rook or king moved, and update castling monitor
+        board.removePiece(move.getEndPosition());
+        ChessPiece.PieceType type = move.getPromotionPiece();
+        if (type != null) {
+            board.addPiece(move.getEndPosition(), new ChessPiece(pieceColor, type));
+        } else {
+            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+        }
+        board.removePiece(move.getStartPosition());
+        nextTurn();
+        // Check if rook or king moved, update castling monitor, do castling if necessary
         if (!whiteKingMoved && (row == 0) && (col == 4)) {
             whiteKingMoved = true;
+            if(abs(col - move.getEndPosition().getColumn(true)) == 2){
+                if(move.getEndPosition().getColumn(true) > col) {
+                    ChessPosition rookStartPosition = new ChessPosition(0,7,true);
+                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
+                            move.getEndPosition().getColumn(false)-1);
+                    board.addPiece(rookEndPosition, board.getPiece(rookStartPosition));
+                    board.removePiece(rookStartPosition);
+                    whiteRightRookMoved = true;
+                } else {
+                    ChessPosition rookStartPosition = new ChessPosition(0,0,true);
+                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
+                            move.getEndPosition().getColumn(false)+1);
+                    board.addPiece(rookEndPosition, board.getPiece(rookStartPosition));
+                    board.removePiece(rookStartPosition);
+                    whiteLeftRookMoved = true;
+                }
+            }
         }
         if (!blackKingMoved && (row == 7) && (col == 4)) {
             blackKingMoved = true;
+            if(abs(col - move.getEndPosition().getColumn(true)) == 2){
+                if(move.getEndPosition().getColumn(true) > col) {
+                    ChessPosition rookStartPosition = new ChessPosition(7,7,true);
+                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
+                            move.getEndPosition().getColumn(false)-1);
+                    board.addPiece(rookEndPosition, board.getPiece(rookStartPosition));
+                    board.removePiece(rookStartPosition);
+                    blackRightRookMoved = true;
+                } else {
+                    ChessPosition rookStartPosition = new ChessPosition(7,0,true);
+                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
+                            move.getEndPosition().getColumn(false)+1);
+                    board.addPiece(rookEndPosition, board.getPiece(rookStartPosition));
+                    board.removePiece(rookStartPosition);
+                    blackLeftRookMoved = true;
+                }
+            }
         }
         if (!whiteLeftRookMoved && (row == 0) && (col == 0)) {
             whiteLeftRookMoved = true;
@@ -208,16 +292,6 @@ public class ChessGame {
             blackRightRookMoved = true;
         }
         // TODO: check if pawn moved two spaces, and update en passant monitor
-
-        board.removePiece(move.getEndPosition());
-        ChessPiece.PieceType type = move.getPromotionPiece();
-        if (type != null) {
-            board.addPiece(move.getEndPosition(), new ChessPiece(pieceColor, type));
-        } else {
-            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
-        }
-        board.removePiece(move.getStartPosition());
-        nextTurn();
     }
 
     public void makeTestMove(ChessMove move, ChessBoard testBoard) {
