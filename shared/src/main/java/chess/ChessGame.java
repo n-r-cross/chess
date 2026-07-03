@@ -103,6 +103,9 @@ public class ChessGame {
 
     private Collection<ChessMove> validCastlingMoves(ChessPosition startPosition) {
         Collection<ChessMove> c = new ArrayList<>();
+        if(!testNotInCheck(board.getPieceColor(startPosition),new ChessMove(startPosition,startPosition,null))) {
+            return c;
+        }
         if (board.getPiece(startPosition).getTeamColor() == TeamColor.WHITE) {
             if (whiteKingMoved) { return c; }
             if (!whiteLeftRookMoved) {
@@ -149,10 +152,10 @@ public class ChessGame {
         }
         Collection<ChessMove> c;
         c = board.getPieceMoves(startPosition);
-        if ((board.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.KING) &&
-                ((startPosition.equals(new ChessPosition(0,4)))
-                        || (startPosition.equals(new ChessPosition(7,4)))) &&
-                testNotInCheck(board.getPieceColor(startPosition),new ChessMove(startPosition,startPosition,null))) {
+        ChessPiece.PieceType type = board.getPiece(startPosition).getPieceType();
+        if ((type.equals(ChessPiece.PieceType.KING)) &&
+                ((startPosition.equals(new ChessPosition(0,4,true)))
+                        || (startPosition.equals(new ChessPosition(7,4,true))))) {
              c.addAll(validCastlingMoves(startPosition));
         }
         Collection<ChessMove> valid = new ArrayList<>();
@@ -291,7 +294,6 @@ public class ChessGame {
         if (!blackRightRookMoved && (row == 7) && (col == 7)) {
             blackRightRookMoved = true;
         }
-        // TODO: check if pawn moved two spaces, and update en passant monitor
     }
 
     public void makeTestMove(ChessMove move, ChessBoard testBoard) {
