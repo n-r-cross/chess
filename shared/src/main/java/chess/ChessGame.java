@@ -103,7 +103,7 @@ public class ChessGame {
 
     private Collection<ChessMove> validCastlingMoves(ChessPosition startPosition) {
         Collection<ChessMove> c = new ArrayList<>();
-        if(!testNotInCheck(board.getPieceColor(startPosition),new ChessMove(startPosition,startPosition,null))) {
+        if(!testNotInCheck(board.getPieceColor(startPosition))) {
             return c;
         }
         if (board.getPiece(startPosition).getTeamColor() == TeamColor.WHITE) {
@@ -319,9 +319,9 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         TeamColor oppColor = teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
         Collection<ChessMove> c = allValidMoves(oppColor);
-        ChessPosition kingPosition = board.getKingPosition(teamColor);
+        ChessPosition kingPos = board.getKingPosition(teamColor);
         for (ChessMove move : c) {
-            if (move.getEndPosition().equals(kingPosition)) {
+            if (move.getEndPosition().equals(kingPos)) {
                 return true;
             }
         }
@@ -342,8 +342,29 @@ public class ChessGame {
         ChessBoard testBoard = new ChessBoard(board);
         makeTestMove(testMove, testBoard);
         Collection<ChessMove> c = allValidTestMoves(oppColor, testBoard);
+        ChessPosition kingPos = testBoard.getKingPosition(teamColor);
         for (ChessMove move : c) {
-            if (move.getEndPosition().equals(testBoard.getKingPosition(teamColor))) {
+            if (move.getEndPosition().equals(kingPos)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Determines if the given team would be in check
+     *
+     * @param teamColor which team to check for check
+     * @return True if the specified team would be in
+     * check
+     */
+    private boolean testNotInCheck(TeamColor teamColor) {
+        TeamColor oppColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        ChessBoard testBoard = new ChessBoard(board);
+        Collection<ChessMove> c = allValidTestMoves(oppColor, testBoard);
+        ChessPosition kingPos = testBoard.getKingPosition(teamColor);
+        for (ChessMove move : c) {
+            if (move.getEndPosition().equals(kingPos)) {
                 return false;
             }
         }
