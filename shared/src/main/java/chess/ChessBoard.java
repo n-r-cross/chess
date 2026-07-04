@@ -20,7 +20,7 @@ public class ChessBoard {
 
     public ChessBoard(ChessBoard copy) {
         board = new ChessPiece[8][];
-        for(int i = 0; i <= 7; i++){
+        for (int i = 0; i <= 7; i++) {
             board[i] = Arrays.copyOf(copy.getBoard()[i], copy.getBoard()[i].length);
         }
     }
@@ -103,14 +103,14 @@ public class ChessBoard {
      * can make
      */
     public Collection<ChessMove> getPieceMoves(ChessPosition pos) {
-        return getPiece(pos).pieceMoves(this,pos);
+        return getPiece(pos).pieceMoves(this, pos);
     }
 
     public ChessPosition getKingPosition(ChessGame.TeamColor color) {
-        for(int i = 0; i <= 7; i++){
-            for(int j = 0; j <= 7; j++) {
-                if ((getPiece(i,j) != null) && (getPiece(i,j).getPieceType() == ChessPiece.PieceType.KING)
-                        && (getPiece(i,j).getTeamColor() == color)) {
+        for (int i = 0; i <= 7; i++) {
+            for (int j = 0; j <= 7; j++) {
+                if ((getPiece(i, j) != null) && (getPiece(i, j).getPieceType() == ChessPiece.PieceType.KING)
+                        && (getPiece(i, j).getTeamColor() == color)) {
                     return new ChessPosition(i, j, true);
                 }
             }

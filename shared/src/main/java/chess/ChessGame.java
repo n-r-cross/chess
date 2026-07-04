@@ -176,12 +176,12 @@ public class ChessGame {
             c.addAll(validCastlingMoves(startPosition));
         }
         // If piece is a pawn and en passant was triggered, add en passant moves
-        if(type.equals(ChessPiece.PieceType.PAWN) && (enPassant != null)) {
+        if (type.equals(ChessPiece.PieceType.PAWN) && (enPassant != null)) {
             int colDistanceToEnPassant = enPassant.getColumn(true) - startPosition.getColumn(true);
             int rowDistanceToEnPassant = enPassant.getRow(true) - startPosition.getRow(true);
             int direction = (board.getPieceColor(startPosition) == TeamColor.WHITE) ? 1 : -1;
-            if((abs(colDistanceToEnPassant) == 1) && (rowDistanceToEnPassant == direction)) {
-                c.add(new ChessMove(startPosition,enPassant,null));
+            if ((abs(colDistanceToEnPassant) == 1) && (rowDistanceToEnPassant == direction)) {
+                c.add(new ChessMove(startPosition, enPassant, null));
             }
         }
         Collection<ChessMove> valid = new ArrayList<>();
@@ -349,19 +349,19 @@ public class ChessGame {
         }
         // En passant
         int advanced = move.getStartPosition().getRow(true) - move.getEndPosition().getRow(true);
-        if((type == ChessPiece.PieceType.PAWN)) {
+        if ((type == ChessPiece.PieceType.PAWN)) {
             // Deal with en passant capture if done
-            if(move.getEndPosition().equals(enPassant) &&
+            if (move.getEndPosition().equals(enPassant) &&
                     (abs(move.getStartPosition().getColumn() - enPassant.getColumn()) == 1) &&
-                    (abs(move.getStartPosition().getRow() - enPassant.getRow()) == 1)){
-            ChessPosition captured = new ChessPosition(move.getStartPosition().getRow(),move.getEndPosition().getColumn());
-            board.removePiece(captured);
+                    (abs(move.getStartPosition().getRow() - enPassant.getRow()) == 1)) {
+                ChessPosition captured = new ChessPosition(move.getStartPosition().getRow(), move.getEndPosition().getColumn());
+                board.removePiece(captured);
             }
             enPassant = null;
             // Record if pawn movement creates chance of en passant capture
-            if(abs(advanced) == 2) {
+            if (abs(advanced) == 2) {
                 int enPassantRow = (move.getEndPosition().getRow() + move.getStartPosition().getRow()) / 2;
-                enPassant = new ChessPosition(enPassantRow,move.getEndPosition().getColumn());
+                enPassant = new ChessPosition(enPassantRow, move.getEndPosition().getColumn());
             }
         } else {
             enPassant = null;
@@ -388,12 +388,12 @@ public class ChessGame {
         }
         testBoard.removePiece(move.getStartPosition());
         // En passant
-        if((type == ChessPiece.PieceType.PAWN)) {
+        if ((type == ChessPiece.PieceType.PAWN)) {
             // Deal with en passant capture if done
-            if(move.getEndPosition().equals(enPassant) &&
+            if (move.getEndPosition().equals(enPassant) &&
                     (abs(move.getEndPosition().getColumn() - enPassant.getColumn()) == 1) &&
-                    (abs(move.getEndPosition().getRow() - enPassant.getRow()) == 1)){
-                ChessPosition captured = new ChessPosition(move.getStartPosition().getRow(),move.getEndPosition().getColumn());
+                    (abs(move.getEndPosition().getRow() - enPassant.getRow()) == 1)) {
+                ChessPosition captured = new ChessPosition(move.getStartPosition().getRow(), move.getEndPosition().getColumn());
                 testBoard.removePiece(captured);
             }
         }

@@ -21,10 +21,10 @@ public class ChessPosition {
 
     /**
      *
-     * @param row        row index
-     * @param col        column index
+     * @param row       row index
+     * @param col       column index
      * @param zeroIndex whether row and
-     *                   col are 0-indexed
+     *                  col are 0-indexed
      */
     public ChessPosition(int row, int col, boolean zeroIndex) {
         if (zeroIndex) {
@@ -47,8 +47,8 @@ public class ChessPosition {
     /**
      *
      * @param zeroIndex whether to return
-     *                   1-indexed or
-     *                   0-indexed
+     *                  1-indexed or
+     *                  0-indexed
      * @return which row this position is in
      * 1 codes for the bottom row
      */
@@ -70,8 +70,8 @@ public class ChessPosition {
     /**
      *
      * @param zeroIndex whether to return
-     *                   1-indexed or
-     *                   0-indexed
+     *                  1-indexed or
+     *                  0-indexed
      * @return which row this position is in
      * 1 codes for the bottom row
      */
