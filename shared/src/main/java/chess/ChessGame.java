@@ -53,11 +53,8 @@ public class ChessGame {
      * Sets turn to the next teams turn
      */
     public void nextTurn() {
-        if (getTeamTurn() == TeamColor.WHITE) {
-            setTeamTurn(TeamColor.BLACK);
-        } else {
-            setTeamTurn(TeamColor.WHITE);
-        }
+        TeamColor nextColor = (getTeamTurn() == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        setTeamTurn(nextColor);
     }
 
     @Override
@@ -255,6 +252,91 @@ public class ChessGame {
         return c;
     }
 
+    private void enPassantCapture(ChessMove move, ChessBoard boardUsed) {
+        // Deal with en passant capture if done
+        if (move.getEndPosition().equals(enPassant) &&
+                (abs(move.getStartPosition().getColumn() - enPassant.getColumn()) == 1) &&
+                (abs(move.getStartPosition().getRow() - enPassant.getRow()) == 1)) {
+            ChessPosition captured = new ChessPosition(move.getStartPosition().getRow(), move.getEndPosition().getColumn());
+            boardUsed.removePiece(captured);
+        }
+    }
+
+    private void forceMakeMove(ChessMove move) {
+        int row = move.getStartPosition().getRow(true);
+        int col = move.getStartPosition().getColumn(true);
+        TeamColor pieceColor = board.getPieceColor(row, col);
+        // type will be used to check for en passant
+        ChessPiece.PieceType type = board.getPiece(move.getStartPosition()).getPieceType();
+        // Make move
+        ChessPiece.PieceType promotion = move.getPromotionPiece();
+        if (promotion != null) {
+            board.addPiece(move.getEndPosition(), new ChessPiece(pieceColor, promotion));
+        } else {
+            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+        }
+        board.removePiece(move.getStartPosition());
+        nextTurn();
+        // Check if rook or king moved, update castling monitor, do castling if necessary
+        if (!whiteKingMoved && (row == 0) && (col == 4)) {
+            whiteKingMoved = true;
+            if (abs(col - move.getEndPosition().getColumn(true)) == 2) {
+                if (move.getEndPosition().getColumn(true) > col) {
+                    ChessPosition rookStartPosition = new ChessPosition(0, 7, true);
+                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
+                            move.getEndPosition().getColumn(false) - 1);
+                    forceMakeMove(new ChessMove(rookStartPosition, rookEndPosition, null));
+                } else {
+                    ChessPosition rookStartPosition = new ChessPosition(0, 0, true);
+                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
+                            move.getEndPosition().getColumn(false) + 1);
+                    forceMakeMove(new ChessMove(rookStartPosition, rookEndPosition, null));
+                }
+            }
+        }
+        if (!blackKingMoved && (row == 7) && (col == 4)) {
+            blackKingMoved = true;
+            if (abs(col - move.getEndPosition().getColumn(true)) == 2) {
+                if (move.getEndPosition().getColumn(true) > col) {
+                    ChessPosition rookStartPosition = new ChessPosition(7, 7, true);
+                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
+                            move.getEndPosition().getColumn(false) - 1);
+                    forceMakeMove(new ChessMove(rookStartPosition, rookEndPosition, null));
+                } else {
+                    ChessPosition rookStartPosition = new ChessPosition(7, 0, true);
+                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
+                            move.getEndPosition().getColumn(false) + 1);
+                    forceMakeMove(new ChessMove(rookStartPosition, rookEndPosition, null));
+                }
+            }
+        }
+        if (!whiteLeftRookMoved && (row == 0) && (col == 0)) {
+            whiteLeftRookMoved = true;
+        }
+        if (!whiteRightRookMoved && (row == 0) && (col == 7)) {
+            whiteRightRookMoved = true;
+        }
+        if (!blackLeftRookMoved && (row == 7) && (col == 0)) {
+            blackLeftRookMoved = true;
+        }
+        if (!blackRightRookMoved && (row == 7) && (col == 7)) {
+            blackRightRookMoved = true;
+        }
+        // En passant
+        int advanced = move.getStartPosition().getRow(true) - move.getEndPosition().getRow(true);
+        if ((type == ChessPiece.PieceType.PAWN)) {
+            // Deal with en passant capture if done
+            enPassantCapture(move, board);
+            enPassant = null;
+            // Record if pawn movement creates chance of en passant capture
+            if (abs(advanced) == 2) {
+                int enPassantRow = (move.getEndPosition().getRow() + move.getStartPosition().getRow()) / 2;
+                enPassant = new ChessPosition(enPassantRow, move.getEndPosition().getColumn());
+            }
+        } else {
+            enPassant = null;
+        }
+    }
 
     /**
      * Makes a move in the chess game
@@ -282,90 +364,7 @@ public class ChessGame {
             String msg = move + " is invalid!";
             throw new InvalidMoveException(msg);
         }
-        // type will be used to check for en passant
-        ChessPiece.PieceType type = board.getPiece(move.getStartPosition()).getPieceType();
-        // Make move
-        board.removePiece(move.getEndPosition());
-        ChessPiece.PieceType promotion = move.getPromotionPiece();
-        if (promotion != null) {
-            board.addPiece(move.getEndPosition(), new ChessPiece(pieceColor, promotion));
-        } else {
-            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
-        }
-        board.removePiece(move.getStartPosition());
-        nextTurn();
-        // Check if rook or king moved, update castling monitor, do castling if necessary
-        if (!whiteKingMoved && (row == 0) && (col == 4)) {
-            whiteKingMoved = true;
-            if (abs(col - move.getEndPosition().getColumn(true)) == 2) {
-                if (move.getEndPosition().getColumn(true) > col) {
-                    ChessPosition rookStartPosition = new ChessPosition(0, 7, true);
-                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
-                            move.getEndPosition().getColumn(false) - 1);
-                    board.addPiece(rookEndPosition, board.getPiece(rookStartPosition));
-                    board.removePiece(rookStartPosition);
-                    whiteRightRookMoved = true;
-                } else {
-                    ChessPosition rookStartPosition = new ChessPosition(0, 0, true);
-                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
-                            move.getEndPosition().getColumn(false) + 1);
-                    board.addPiece(rookEndPosition, board.getPiece(rookStartPosition));
-                    board.removePiece(rookStartPosition);
-                    whiteLeftRookMoved = true;
-                }
-            }
-        }
-        if (!blackKingMoved && (row == 7) && (col == 4)) {
-            blackKingMoved = true;
-            if (abs(col - move.getEndPosition().getColumn(true)) == 2) {
-                if (move.getEndPosition().getColumn(true) > col) {
-                    ChessPosition rookStartPosition = new ChessPosition(7, 7, true);
-                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
-                            move.getEndPosition().getColumn(false) - 1);
-                    board.addPiece(rookEndPosition, board.getPiece(rookStartPosition));
-                    board.removePiece(rookStartPosition);
-                    blackRightRookMoved = true;
-                } else {
-                    ChessPosition rookStartPosition = new ChessPosition(7, 0, true);
-                    ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(false),
-                            move.getEndPosition().getColumn(false) + 1);
-                    board.addPiece(rookEndPosition, board.getPiece(rookStartPosition));
-                    board.removePiece(rookStartPosition);
-                    blackLeftRookMoved = true;
-                }
-            }
-        }
-        if (!whiteLeftRookMoved && (row == 0) && (col == 0)) {
-            whiteLeftRookMoved = true;
-        }
-        if (!whiteRightRookMoved && (row == 0) && (col == 7)) {
-            whiteRightRookMoved = true;
-        }
-        if (!blackLeftRookMoved && (row == 7) && (col == 0)) {
-            blackLeftRookMoved = true;
-        }
-        if (!blackRightRookMoved && (row == 7) && (col == 7)) {
-            blackRightRookMoved = true;
-        }
-        // En passant
-        int advanced = move.getStartPosition().getRow(true) - move.getEndPosition().getRow(true);
-        if ((type == ChessPiece.PieceType.PAWN)) {
-            // Deal with en passant capture if done
-            if (move.getEndPosition().equals(enPassant) &&
-                    (abs(move.getStartPosition().getColumn() - enPassant.getColumn()) == 1) &&
-                    (abs(move.getStartPosition().getRow() - enPassant.getRow()) == 1)) {
-                ChessPosition captured = new ChessPosition(move.getStartPosition().getRow(), move.getEndPosition().getColumn());
-                board.removePiece(captured);
-            }
-            enPassant = null;
-            // Record if pawn movement creates chance of en passant capture
-            if (abs(advanced) == 2) {
-                int enPassantRow = (move.getEndPosition().getRow() + move.getStartPosition().getRow()) / 2;
-                enPassant = new ChessPosition(enPassantRow, move.getEndPosition().getColumn());
-            }
-        } else {
-            enPassant = null;
-        }
+        forceMakeMove(move);
     }
 
     /**
@@ -390,12 +389,7 @@ public class ChessGame {
         // En passant
         if ((type == ChessPiece.PieceType.PAWN)) {
             // Deal with en passant capture if done
-            if (move.getEndPosition().equals(enPassant) &&
-                    (abs(move.getEndPosition().getColumn() - enPassant.getColumn()) == 1) &&
-                    (abs(move.getEndPosition().getRow() - enPassant.getRow()) == 1)) {
-                ChessPosition captured = new ChessPosition(move.getStartPosition().getRow(), move.getEndPosition().getColumn());
-                testBoard.removePiece(captured);
-            }
+            enPassantCapture(move, testBoard);
         }
     }
 
