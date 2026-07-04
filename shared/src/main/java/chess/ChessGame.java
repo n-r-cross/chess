@@ -378,7 +378,6 @@ public class ChessGame {
         }
         testBoard.removePiece(move.getStartPosition());
         // En passant
-        int advanced = move.getStartPosition().getRow(true) - move.getEndPosition().getRow(true);
         if((type == ChessPiece.PieceType.PAWN)) {
             // Deal with en passant capture if done
             if(move.getEndPosition().equals(enPassant) &&
