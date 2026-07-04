@@ -175,7 +175,15 @@ public class ChessGame {
                         || (startPosition.equals(new ChessPosition(7, 4, true))))) {
             c.addAll(validCastlingMoves(startPosition));
         }
-        // TODO: if piece is a pawn and en passant was triggered, add en passant moves
+        // If piece is a pawn and en passant was triggered, add en passant moves
+        if(type.equals(ChessPiece.PieceType.PAWN) && (enPassant != null)) {
+            int colDistanceToEnPassant = enPassant.getColumn(true) - startPosition.getColumn(true);
+            int rowDistanceToEnPassant = enPassant.getRow(true) - startPosition.getRow(true);
+            int direction = (board.getPieceColor(startPosition) == TeamColor.WHITE) ? 1 : -1;
+            if((abs(colDistanceToEnPassant) == 1) && (rowDistanceToEnPassant == direction)) {
+                c.add(new ChessMove(startPosition,enPassant,null));
+            }
+        }
         Collection<ChessMove> valid = new ArrayList<>();
         // Filter moves that put/leave king in check
         for (ChessMove move : c) {
@@ -344,17 +352,19 @@ public class ChessGame {
         if((type == ChessPiece.PieceType.PAWN)) {
             // Deal with en passant capture if done
             if(move.getEndPosition().equals(enPassant) &&
-                    (abs(move.getEndPosition().getColumn() - enPassant.getColumn()) == 1) &&
-                    (abs(move.getEndPosition().getRow() - enPassant.getRow()) == 1)){
-            enPassant = null;
+                    (abs(move.getStartPosition().getColumn() - enPassant.getColumn()) == 1) &&
+                    (abs(move.getStartPosition().getRow() - enPassant.getRow()) == 1)){
             ChessPosition captured = new ChessPosition(move.getStartPosition().getRow(),move.getEndPosition().getColumn());
             board.removePiece(captured);
             }
+            enPassant = null;
             // Record if pawn movement creates chance of en passant capture
             if(abs(advanced) == 2) {
-                int enPassantCol = (move.getEndPosition().getColumn() + move.getStartPosition().getColumn()) / 2;
-                enPassant = new ChessPosition(move.getEndPosition().getRow(),enPassantCol);
+                int enPassantRow = (move.getEndPosition().getRow() + move.getStartPosition().getRow()) / 2;
+                enPassant = new ChessPosition(enPassantRow,move.getEndPosition().getColumn());
             }
+        } else {
+            enPassant = null;
         }
     }
 
