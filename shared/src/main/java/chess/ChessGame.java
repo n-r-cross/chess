@@ -369,13 +369,25 @@ public class ChessGame {
         int col = move.getStartPosition().getColumn(true);
         TeamColor pieceColor = testBoard.getPieceColor(row, col);
         testBoard.removePiece(move.getEndPosition());
-        ChessPiece.PieceType type = move.getPromotionPiece();
-        if (type != null) {
-            testBoard.addPiece(move.getEndPosition(), new ChessPiece(pieceColor, type));
+        ChessPiece.PieceType type = testBoard.getPiece(move.getStartPosition()).getPieceType();
+        ChessPiece.PieceType promotion = move.getPromotionPiece();
+        if (promotion != null) {
+            testBoard.addPiece(move.getEndPosition(), new ChessPiece(pieceColor, promotion));
         } else {
             testBoard.addPiece(move.getEndPosition(), testBoard.getPiece(move.getStartPosition()));
         }
         testBoard.removePiece(move.getStartPosition());
+        // En passant
+        int advanced = move.getStartPosition().getRow(true) - move.getEndPosition().getRow(true);
+        if((type == ChessPiece.PieceType.PAWN)) {
+            // Deal with en passant capture if done
+            if(move.getEndPosition().equals(enPassant) &&
+                    (abs(move.getEndPosition().getColumn() - enPassant.getColumn()) == 1) &&
+                    (abs(move.getEndPosition().getRow() - enPassant.getRow()) == 1)){
+                ChessPosition captured = new ChessPosition(move.getStartPosition().getRow(),move.getEndPosition().getColumn());
+                testBoard.removePiece(captured);
+            }
+        }
     }
 
     /**
