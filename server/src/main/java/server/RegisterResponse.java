@@ -1,3 +1,4 @@
 package server;
 
-public record RegisterResponse(String authToken){}
+public record RegisterResponse(String authToken) {
+}
