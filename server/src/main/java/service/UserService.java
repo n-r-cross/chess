@@ -1,32 +1,26 @@
 package service;
 
+import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDAO;
 import dataaccess.UserDAO;
 import model.UserData;
 import server.RegisterRequest;
 import server.RegisterResponse;
 
-import java.util.UUID;
-
-
-public class UserService {
-    private UserDAO data = new MemoryUserDAO();
+public class UserService extends Service {
+    private final UserDAO userData = Service.userData;
+    private final AuthDAO authData = Service.authData;
 
     public RegisterResponse register(RegisterRequest r) throws DataAccessException {
         // save userData
         UserData ud = new UserData(r.username(), r.password(), r.email());
-        UserData existing = data.getUser(r.username());
+        UserData existing = userData.getUser(r.username());
         if (existing != null) {
             throw new DataAccessException("User already exists");
         }
-        data.insertUser(ud);
+        userData.insertUser(ud);
         // save authData
-        String token = generateToken();
+        String token = newAuth(r.username());
         return new RegisterResponse(token);
-    }
-
-    private static String generateToken() {
-        return UUID.randomUUID().toString();
     }
 }
