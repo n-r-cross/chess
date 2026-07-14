@@ -12,12 +12,14 @@ public class Server {
     private final Javalin javalin;
 
     private final RegisterHandler registerHandler = new RegisterHandler();
+    private final ClearHandler clearHandler = new ClearHandler();
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
         javalin.post("/user", registerHandler);
+        javalin.delete("/db", clearHandler);
         javalin.exception(Exception.class, this::exceptionHandler);
 
     }

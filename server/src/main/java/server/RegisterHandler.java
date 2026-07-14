@@ -15,7 +15,7 @@ public class RegisterHandler implements Handler {
         System.out.println(context.body());
         RegisterRequest request = new Gson().fromJson(context.body(), RegisterRequest.class);
         System.out.println(request);
-        RegisterResponse response = userService.register(request);
+        RegisterResult response = userService.register(request);
         context.result(new Gson().toJson(response));
     }
 }

@@ -18,4 +18,9 @@ public class Service {
         authData.createAuth(new AuthData(token, username));
         return token;
     }
+
+    public static void clear() throws DataAccessException {
+        userData.clear();
+        authData.clear();
+    }
 }
