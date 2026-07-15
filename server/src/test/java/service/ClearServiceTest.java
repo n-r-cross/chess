@@ -1,11 +1,16 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ClearServiceTest {
 
@@ -16,7 +21,7 @@ class ClearServiceTest {
             Service.userData.insertUser(new UserData("ga", "gaAa", "gaAaAa"));
             s.clear();
         } catch (Exception e) {
-            Assertions.assertEquals("", e.getMessage());
+            fail();
         }
         Assertions.assertEquals(new MemoryUserDAO(), Service.userData);
     }
@@ -28,9 +33,21 @@ class ClearServiceTest {
             Service.authData.createAuth(new AuthData("ga", "gaAaAa"));
             s.clear();
         } catch (Exception e) {
-            Assertions.assertEquals("", e.getMessage());
+            fail();
         }
         Assertions.assertEquals(new MemoryAuthDAO(), Service.authData);
+    }
+
+    @Test
+    void clearGameData() {
+        ClearService s = new ClearService();
+        try {
+            Service.gameData.createGame("disc_wars");
+            s.clear();
+        } catch (Exception e) {
+            fail();
+        }
+        Assertions.assertEquals(new MemoryGameDAO(), Service.gameData);
     }
 
     @Test
@@ -38,7 +55,7 @@ class ClearServiceTest {
         try {
             Service.userData.insertUser(new UserData("ga", "gaAa", "gaAaAa"));
         } catch (Exception e) {
-            Assertions.assertEquals("", e.getMessage());
+            fail();
         }
         Assertions.assertNotEquals(new MemoryUserDAO(), Service.userData);
     }
@@ -48,7 +65,17 @@ class ClearServiceTest {
         try {
             Service.authData.createAuth(new AuthData("ga", "gaAaAa"));
         } catch (Exception e) {
-            Assertions.assertEquals("", e.getMessage());
+            fail();
+        }
+        Assertions.assertNotEquals(new MemoryAuthDAO(), Service.authData);
+    }
+
+    @Test
+    void noClearGameData() {
+        try {
+            Service.gameData.createGame("disc_wars");
+        } catch (Exception e) {
+            fail();
         }
         Assertions.assertNotEquals(new MemoryAuthDAO(), Service.authData);
     }
