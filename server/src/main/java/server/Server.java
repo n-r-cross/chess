@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.BadRequestException;
+import service.ForbiddenException;
 
 import java.util.Map;
 
@@ -28,6 +29,7 @@ public class Server {
         javalin.exception(Exception.class, this::exceptionHandler);
         javalin.exception(DataAccessException.class, this::dataAccessExceptionHandler);
         javalin.exception(BadRequestException.class, this::badRequestExceptionHandler);
+        javalin.exception(ForbiddenException.class, this::forbiddenExceptionHandler);
 
     }
 
@@ -58,6 +60,13 @@ public class Server {
         var body = new Gson().toJson(Map.of("message",
                 String.format("Error: %s", e.getMessage()), "success", false));
         context.status(400);
+        context.json(body);
+    }
+
+    private void forbiddenExceptionHandler(ForbiddenException e, Context context) {
+        var body = new Gson().toJson(Map.of("message",
+                String.format("Error: %s", e.getMessage()), "success", false));
+        context.status(403);
         context.json(body);
     }
 

@@ -27,7 +27,7 @@ public class UserService extends Service {
         UserData ud = new UserData(r.username(), r.password(), r.email());
         UserData existing = users.getUser(r.username());
         if (existing != null) {
-            throw new DataAccessException("User already exists");
+            throw new ForbiddenException("User already exists");
         }
         users.insertUser(ud);
         // save authData
