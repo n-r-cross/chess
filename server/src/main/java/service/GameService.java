@@ -1,10 +1,6 @@
 package service;
 
-import model.AuthData;
-import server.ListRequest;
-import server.ListResult;
-import server.CreateRequest;
-import server.CreateResult;
+import server.*;
 
 import java.util.ArrayList;
 
@@ -29,5 +25,12 @@ public class GameService extends Service {
         }
         // TODO: create new Game
         return new CreateResult(1);
+    }
+
+    public void join(JoinRequest r) throws Exception {
+        if (!r.complete()) {
+            throw new BadRequestException("bad request");
+        }
+        // TODO: join game
     }
 }
