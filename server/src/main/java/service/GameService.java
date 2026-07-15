@@ -25,8 +25,8 @@ public class GameService extends Service {
             throw new BadRequestException("bad request");
         }
         // TODO: create new Game
-        gameData.createGame();
-        return new CreateResult(0);
+        int gameID = gameData.createGame(r.gameName());
+        return new CreateResult(gameID);
     }
 
     public void join(JoinRequest r) throws Exception {

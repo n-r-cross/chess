@@ -1,4 +1,4 @@
 package server;
 
-public record CreateResult(int gameNumber) {
+public record CreateResult(int gameID) {
 }
