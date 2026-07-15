@@ -5,4 +5,5 @@ import dataaccess.*;
 public class Service {
     protected static UserDAO userData = new MemoryUserDAO();
     protected static AuthDAO authData = new MemoryAuthDAO();
+    protected static GameDAO gameData = new MemoryGameDAO();
 }

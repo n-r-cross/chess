@@ -16,6 +16,7 @@ public class GameService extends Service {
             throw new BadRequestException("bad request");
         }
         // TODO: create actual ListResult with games
+        gameData.listGames();
         return new ListResult(new ArrayList<String>());
     }
 
@@ -24,7 +25,8 @@ public class GameService extends Service {
             throw new BadRequestException("bad request");
         }
         // TODO: create new Game
-        return new CreateResult(1);
+        gameData.createGame();
+        return new CreateResult(0);
     }
 
     public void join(JoinRequest r) throws Exception {
@@ -32,5 +34,6 @@ public class GameService extends Service {
             throw new BadRequestException("bad request");
         }
         // TODO: join game
+        gameData.updateGame();
     }
 }
