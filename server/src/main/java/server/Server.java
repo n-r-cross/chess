@@ -17,6 +17,9 @@ public class Server {
     private final ClearHandler clearHandler = new ClearHandler();
     private final LoginHandler loginHandler = new LoginHandler();
     private final LogoutHandler logoutHandler = new LogoutHandler();
+    private final ListHandler listHandler = new ListHandler();
+    private final CreateHandler createHandler = new CreateHandler();
+    private final JoinHandler joinHandler = new JoinHandler();
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -26,6 +29,10 @@ public class Server {
         javalin.delete("/db", clearHandler);
         javalin.post("/session", loginHandler);
         javalin.delete("/session", logoutHandler);
+        javalin.get("/game", listHandler);
+        javalin.post("/game", createHandler);
+        javalin.put("/game", joinHandler);
+
         javalin.exception(Exception.class, this::exceptionHandler);
         javalin.exception(DataAccessException.class, this::dataAccessExceptionHandler);
         javalin.exception(BadRequestException.class, this::badRequestExceptionHandler);

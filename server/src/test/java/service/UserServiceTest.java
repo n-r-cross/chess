@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
 
-    private static final ClearService clearService = new ClearService();
+    private static final ClearService CLEAR_SERVICE = new ClearService();
 
     void reset() {
         try {
-            clearService.clear();
+            CLEAR_SERVICE.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
