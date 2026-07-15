@@ -1,9 +1,7 @@
 package service;
 
 import dataaccess.DataAccessException;
-import model.AuthData;
 import model.UserData;
-import org.eclipse.jetty.util.log.Log;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import server.*;
@@ -12,9 +10,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
 
+    private static final ClearService clearService = new ClearService();
+
     void reset() {
         try {
-            Service.clear();
+            clearService.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -217,7 +217,7 @@ class UserServiceTest {
             fail();
         }
         try {
-            AuthData a = Service.authData.getAuth(authToken);
+            Service.authData.getAuth(authToken);
         } catch (Exception e) {
             Assertions.assertEquals("unauthorized", e.getMessage());
         }

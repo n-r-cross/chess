@@ -7,9 +7,21 @@ import model.AuthData;
 import model.UserData;
 import server.*;
 
+import java.util.UUID;
+
 public class UserService extends Service {
     private final UserDAO users = Service.userData;
     private final AuthDAO auths = Service.authData;
+
+    private String generateToken() {
+        return UUID.randomUUID().toString();
+    }
+
+    protected String newAuth(String username) throws DataAccessException {
+        String token = generateToken();
+        authData.createAuth(new AuthData(token, username));
+        return token;
+    }
 
     public boolean validate(String username, String password) throws DataAccessException {
         UserData u = users.getUser(username);

@@ -7,16 +7,14 @@ import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class ServiceTest {
+class ClearServiceTest {
 
     @Test
     void clearUserData() {
-        Service s = new Service();
+        ClearService s = new ClearService();
         try {
             Service.userData.insertUser(new UserData("ga", "gaAa", "gaAaAa"));
-            Service.clear();
+            s.clear();
         } catch (Exception e) {
             Assertions.assertEquals("", e.getMessage());
         }
@@ -25,10 +23,10 @@ class ServiceTest {
 
     @Test
     void clearAuthData() {
-        Service s = new Service();
+        ClearService s = new ClearService();
         try {
             Service.authData.createAuth(new AuthData("ga", "gaAaAa"));
-            Service.clear();
+            s.clear();
         } catch (Exception e) {
             Assertions.assertEquals("", e.getMessage());
         }
@@ -37,7 +35,6 @@ class ServiceTest {
 
     @Test
     void noClearUserData() {
-        Service s = new Service();
         try {
             Service.userData.insertUser(new UserData("ga", "gaAa", "gaAaAa"));
         } catch (Exception e) {
@@ -48,7 +45,6 @@ class ServiceTest {
 
     @Test
     void noClearAuthData() {
-        Service s = new Service();
         try {
             Service.authData.createAuth(new AuthData("ga", "gaAaAa"));
         } catch (Exception e) {
