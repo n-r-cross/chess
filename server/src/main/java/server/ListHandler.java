@@ -1,12 +1,19 @@
 package server;
 
+import com.google.gson.Gson;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
+import service.GameService;
 
 public class ListHandler implements Handler {
+    private final GameService gameService = new GameService();
+
     @Override
     public void handle(@NotNull Context context) throws Exception {
         System.out.println("Handling list!");
+        ListRequest request = new ListRequest(context.header("Authorization"));
+        ListResult response = gameService.list(request);
+        context.result(new Gson().toJson(response));
     }
 }
