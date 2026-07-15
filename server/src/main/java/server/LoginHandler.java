@@ -8,7 +8,7 @@ import service.BadRequestException;
 import service.UserService;
 
 public class LoginHandler implements Handler {
-    private static final UserService userService = new UserService();
+    private static final UserService USER_SERVICE = new UserService();
 
     @Override
     public void handle(@NotNull Context context) throws Exception {
@@ -18,8 +18,8 @@ public class LoginHandler implements Handler {
         if (!request.complete()) {
             throw new BadRequestException("bad request");
         }
-        userService.validate(request.username(), request.password());
-        LoginResult result = userService.login(request);
+        USER_SERVICE.validate(request.username(), request.password());
+        LoginResult result = USER_SERVICE.login(request);
         System.out.println(result);
 
         context.result(new Gson().toJson(result));

@@ -7,7 +7,7 @@ import service.BadRequestException;
 import service.UserService;
 
 public class LogoutHandler implements Handler {
-    private static final UserService userService = new UserService();
+    private static final UserService USER_SERVICE = new UserService();
 
     @Override
     public void handle(@NotNull Context context) throws Exception {
@@ -16,6 +16,6 @@ public class LogoutHandler implements Handler {
             throw new BadRequestException("bad request");
         }
         LogoutRequest request = new LogoutRequest(context.header("Authorization"));
-        userService.logout(request);
+        USER_SERVICE.logout(request);
     }
 }
