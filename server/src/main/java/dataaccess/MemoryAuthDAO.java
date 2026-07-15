@@ -4,27 +4,34 @@ import model.AuthData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MemoryAuthDAO implements AuthDAO {
     List<AuthData> list = new ArrayList<>();
 
     @Override
-    public void createAuth(AuthData a) throws DataAccessException {
+    public void createAuth(AuthData a) {
         list.add(a);
     }
 
     @Override
     public AuthData getAuth(String token) throws DataAccessException {
-        return null;
+        for (AuthData i : list) {
+            if (Objects.equals(i.authToken(), token)) {
+                return i;
+            }
+        }
+        throw new DataAccessException("unauthorized");
     }
 
     @Override
     public void deleteAuth(String token) throws DataAccessException {
-
+        AuthData a = getAuth(token);
+        list.remove(a);
     }
 
     @Override
-    public void clear() throws DataAccessException {
+    public void clear() {
         list.clear();
     }
 }

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import io.javalin.*;
 import io.javalin.http.Context;
+import service.BadRequestException;
 
 import java.util.Map;
 
@@ -25,6 +26,8 @@ public class Server {
         javalin.post("/session", loginHandler);
         javalin.delete("/session", logoutHandler);
         javalin.exception(Exception.class, this::exceptionHandler);
+        javalin.exception(DataAccessException.class, this::dataAccessExceptionHandler);
+        javalin.exception(BadRequestException.class, this::badRequestExceptionHandler);
 
     }
 
@@ -41,6 +44,20 @@ public class Server {
         var body = new Gson().toJson(Map.of("message",
                 String.format("Error: %s", e.getMessage()), "success", false));
         context.status(500);
+        context.json(body);
+    }
+
+    private void dataAccessExceptionHandler(DataAccessException e, Context context) {
+        var body = new Gson().toJson(Map.of("message",
+                String.format("Error: %s", e.getMessage()), "success", false));
+        context.status(401);
+        context.json(body);
+    }
+
+    private void badRequestExceptionHandler(BadRequestException e, Context context) {
+        var body = new Gson().toJson(Map.of("message",
+                String.format("Error: %s", e.getMessage()), "success", false));
+        context.status(400);
         context.json(body);
     }
 
