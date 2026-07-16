@@ -13,26 +13,25 @@ public class Server {
 
     private final Javalin javalin;
 
-    private final RegisterHandler registerHandler = new RegisterHandler();
-    private final ClearHandler clearHandler = new ClearHandler();
-    private final LoginHandler loginHandler = new LoginHandler();
-    private final LogoutHandler logoutHandler = new LogoutHandler();
-    private final ListHandler listHandler = new ListHandler();
-    private final CreateHandler createHandler = new CreateHandler();
-    private final JoinHandler joinHandler = new JoinHandler();
-
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        // Register your endpoints and exception handlers here.
+        // Register endpoints
+        RegisterHandler registerHandler = new RegisterHandler();
         javalin.post("/user", registerHandler);
+        ClearHandler clearHandler = new ClearHandler();
         javalin.delete("/db", clearHandler);
+        LoginHandler loginHandler = new LoginHandler();
         javalin.post("/session", loginHandler);
+        LogoutHandler logoutHandler = new LogoutHandler();
         javalin.delete("/session", logoutHandler);
+        ListHandler listHandler = new ListHandler();
         javalin.get("/game", listHandler);
+        CreateHandler createHandler = new CreateHandler();
         javalin.post("/game", createHandler);
+        JoinHandler joinHandler = new JoinHandler();
         javalin.put("/game", joinHandler);
-
+        // Register exceptions
         javalin.exception(Exception.class, this::exceptionHandler);
         javalin.exception(DataAccessException.class, this::dataAccessExceptionHandler);
         javalin.exception(BadRequestException.class, this::badRequestExceptionHandler);
@@ -49,6 +48,9 @@ public class Server {
         javalin.stop();
     }
 
+    /**
+     * Handle general exceptions
+     */
     private void exceptionHandler(Exception e, Context context) {
         var body = new Gson().toJson(Map.of("message",
                 String.format("Error: %s", e.getMessage()), "success", false));
@@ -56,6 +58,11 @@ public class Server {
         context.json(body);
     }
 
+    /**
+     * Handle data access exceptions (usually
+     * unauthorized for wrong username/password
+     * or no authToken)
+     */
     private void dataAccessExceptionHandler(DataAccessException e, Context context) {
         var body = new Gson().toJson(Map.of("message",
                 String.format("Error: %s", e.getMessage()), "success", false));
@@ -63,6 +70,11 @@ public class Server {
         context.json(body);
     }
 
+    /**
+     * Handle bad request exceptions (usually
+     * didn't include enough fields in request or
+     * something out of range)
+     */
     private void badRequestExceptionHandler(BadRequestException e, Context context) {
         var body = new Gson().toJson(Map.of("message",
                 String.format("Error: %s", e.getMessage()), "success", false));
@@ -70,6 +82,10 @@ public class Server {
         context.json(body);
     }
 
+    /**
+     * Handle forbidden exceptions (usually
+     * username or team color already taken)
+     */
     private void forbiddenExceptionHandler(ForbiddenException e, Context context) {
         var body = new Gson().toJson(Map.of("message",
                 String.format("Error: %s", e.getMessage()), "success", false));

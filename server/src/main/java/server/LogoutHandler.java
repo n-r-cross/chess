@@ -12,10 +12,11 @@ public class LogoutHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context context) throws Exception {
-        System.out.println("Handling logout");
+        // Check if body was included and throw exception
         if (!context.body().isEmpty()) {
             throw new BadRequestException("bad request");
         }
+        // Create request
         LogoutRequest request = new LogoutRequest(context.header("Authorization"));
         USER_SERVICE.logout(request);
     }

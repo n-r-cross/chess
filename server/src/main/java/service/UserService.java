@@ -58,7 +58,6 @@ public class UserService extends Service {
         if (!loginRequest.complete()) {
             throw new BadRequestException("bad request");
         }
-        System.out.println(loginRequest);
         // Create authToken
         String authToken = newAuth(loginRequest.username());
         return new LoginResult(loginRequest.username(), authToken);
@@ -69,8 +68,6 @@ public class UserService extends Service {
             throw new BadRequestException("bad request");
         }
         // Delete authToken
-        System.out.println("Logging out...");
-        System.out.println(logoutRequest);
         auths.deleteAuth(logoutRequest.authToken());
     }
 }

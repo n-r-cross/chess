@@ -8,15 +8,17 @@ import server.request.JoinRequest;
 import service.GameService;
 
 public class JoinHandler implements Handler {
-    private final GameService gameService = new GameService();
-    private final Gson gson = new Gson();
+    private static final GameService GAME_SERVICE = new GameService();
+    private static final Gson GSON = new Gson();
 
     @Override
     public void handle(@NotNull Context context) throws Exception {
-        System.out.println("Handling join!");
-        gameService.validate(context.header("Authorization"));
-        JoinRequest request = gson.fromJson(context.body(), JoinRequest.class);
-        gameService.join(request, context.header("Authorization"));
+        // Check authToken
+        GAME_SERVICE.validate(context.header("Authorization"));
+        // Rehydrate request
+        JoinRequest request = GSON.fromJson(context.body(), JoinRequest.class);
+        // Call join, including authToken to get username
+        GAME_SERVICE.join(request, context.header("Authorization"));
         context.result();
     }
 }

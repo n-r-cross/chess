@@ -6,15 +6,14 @@ import service.BadRequestException;
 import service.ClearService;
 
 public class ClearHandler implements Handler {
-    private final ClearService clearService = new ClearService();
+    private static final ClearService CLEAR_SERVICE = new ClearService();
 
     public void handle(Context context) throws Exception {
-        System.out.println("Called handle in ClearHandler!");
-        System.out.println(context.body());
+        // Check request
         if (!context.body().isEmpty()) {
             throw new BadRequestException("bad request");
         }
-        clearService.clear();
+        CLEAR_SERVICE.clear();
         context.result();
     }
 }

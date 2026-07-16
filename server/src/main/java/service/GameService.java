@@ -37,11 +37,11 @@ public class GameService extends Service {
         GameData g = gameData.getGame(r.gameID());
         if (r.playerColor() == ChessGame.TeamColor.BLACK) {
             if (g.blackUsername() != null) {
-                throw new ForbiddenException("Forbidden");
+                throw new ForbiddenException("already taken");
             }
         } else {
             if (g.whiteUsername() != null) {
-                throw new ForbiddenException("Forbidden");
+                throw new ForbiddenException("already taken");
             }
         }
         String username = Service.authData.getAuth(authToken).username();

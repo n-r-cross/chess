@@ -10,17 +10,18 @@ import service.BadRequestException;
 import service.UserService;
 
 public class RegisterHandler implements Handler {
-    private final UserService userService = new UserService();
+    private static final UserService USER_SERVICE = new UserService();
+    private static final Gson GSON = new Gson();
 
     public void handle(Context context) throws Exception {
-        System.out.println("Called handle in RegisterHandler!");
-        System.out.println(context.body());
-        RegisterRequest request = new Gson().fromJson(context.body(), RegisterRequest.class);
+        // Rehydrate request
+        RegisterRequest request = GSON.fromJson(context.body(), RegisterRequest.class);
+        // Check for bad request
         if (!request.complete()) {
             throw new BadRequestException("bad request");
         }
-        System.out.println(request);
-        RegisterResult response = userService.register(request);
-        context.result(new Gson().toJson(response));
+        // Register user
+        RegisterResult response = USER_SERVICE.register(request);
+        context.result(GSON.toJson(response));
     }
 }

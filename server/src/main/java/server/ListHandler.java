@@ -9,16 +9,17 @@ import server.result.ListResult;
 import service.GameService;
 
 public class ListHandler implements Handler {
-    private final GameService gameService = new GameService();
-    private final Gson gson = new Gson();
-
+    private static final GameService GAME_SERVICE = new GameService();
+    private static final Gson GSON = new Gson();
 
     @Override
     public void handle(@NotNull Context context) throws Exception {
-        System.out.println("Handling list!");
-        gameService.validate(context.header("Authorization"));
+        // Check authToken
+        GAME_SERVICE.validate(context.header("Authorization"));
+        // Create request
         ListRequest request = new ListRequest(context.header("Authorization"));
-        ListResult response = gameService.list(request);
-        context.result(gson.toJson(response));
+        // Get list
+        ListResult response = GAME_SERVICE.list(request);
+        context.result(GSON.toJson(response));
     }
 }
