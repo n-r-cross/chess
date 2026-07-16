@@ -1,7 +1,7 @@
 package service;
 
 /**
- * Indicates that username is already taken
+ * Indicates that username or playerColor is already taken
  */
 public class ForbiddenException extends Exception {
     public ForbiddenException(String message) {

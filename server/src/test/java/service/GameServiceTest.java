@@ -84,14 +84,14 @@ class GameServiceTest {
         }
         List<GameData> data = null;
         try {
-            data = gameService.list(new ListRequest(result.authToken())).games();
+            data = gameService.list().games();
         } catch (Exception e) {
             fail();
         }
         Assertions.assertEquals(new ArrayList<GameData>(), data);
         try {
             gameService.create(new CreateRequest("disc_wars"));
-            data = gameService.list(new ListRequest(result.authToken())).games();
+            data = gameService.list().games();
         } catch (Exception e) {
             fail();
         }
@@ -103,7 +103,7 @@ class GameServiceTest {
         golden.add(game2);
         try {
             gameService.create(new CreateRequest("light_cycles"));
-            data = gameService.list(new ListRequest(result.authToken())).games();
+            data = gameService.list().games();
         } catch (Exception e) {
             fail();
         }
@@ -124,7 +124,7 @@ class GameServiceTest {
         List<GameData> data = null;
         try {
             gameService.create(new CreateRequest("disc_wars"));
-            data = gameService.list(new ListRequest(result.authToken())).games();
+            data = gameService.list().games();
         } catch (Exception e) {
             fail();
         }
@@ -154,7 +154,7 @@ class GameServiceTest {
         try {
             gameService.create(new CreateRequest("disc_wars"));
             gameService.create(new CreateRequest("light_cycles"));
-            data = gameService.list(new ListRequest(result.authToken())).games();
+            data = gameService.list().games();
         } catch (Exception e) {
             fail();
         }
@@ -258,13 +258,13 @@ class GameServiceTest {
             gameService.join(new JoinRequest(ChessGame.TeamColor.BLACK, createResult.gameID()), registerResult.authToken());
             fail();
         } catch (Exception e) {
-            Assertions.assertEquals("Forbidden", e.getMessage());
+            Assertions.assertEquals("already taken", e.getMessage());
         }
         try {
             gameService.join(new JoinRequest(ChessGame.TeamColor.WHITE, createResult.gameID()), registerResult.authToken());
             fail();
         } catch (Exception e) {
-            Assertions.assertEquals("Forbidden", e.getMessage());
+            Assertions.assertEquals("already taken", e.getMessage());
         }
     }
 }

@@ -4,24 +4,39 @@ import chess.ChessGame;
 import model.GameData;
 import server.request.CreateRequest;
 import server.request.JoinRequest;
-import server.request.ListRequest;
 import server.result.CreateResult;
 import server.result.ListResult;
 
 public class GameService extends Service {
 
+    /**
+     * Check that the given authToken exists
+     *
+     * @param authToken string to check
+     * @return true if authToken exists
+     * @throws Exception if authToken doesn't exist
+     */
     public boolean validate(String authToken) throws Exception {
         authData.getAuth(authToken);
         return true;
     }
 
-    public ListResult list(ListRequest r) throws Exception {
-        if (!r.complete()) {
-            throw new BadRequestException("bad request");
-        }
+    /**
+     * List all games stored
+     *
+     * @return a list of GameData objects
+     */
+    public ListResult list() {
         return new ListResult(gameData.listGames());
     }
 
+    /**
+     * Creates a new game with given gameName
+     *
+     * @param r request
+     * @return CreateResult with gameID
+     * @throws Exception if request is incomplete
+     */
     public CreateResult create(CreateRequest r) throws Exception {
         if (!r.complete()) {
             throw new BadRequestException("bad request");
@@ -30,6 +45,15 @@ public class GameService extends Service {
         return new CreateResult(gameID);
     }
 
+    /**
+     * Add user to game
+     *
+     * @param r         JoinRequest
+     * @param authToken token to get username from
+     * @throws Exception if request is incomplete,
+     *                   if color is already taken,
+     *                   or if gameID is invalid
+     */
     public void join(JoinRequest r, String authToken) throws Exception {
         if (!r.complete()) {
             throw new BadRequestException("bad request");

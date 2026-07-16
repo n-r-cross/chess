@@ -32,7 +32,6 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData game) throws BadRequestException {
-        System.out.println("Updating game in DAO");
         int gameID = game.gameID();
         if ((gameID < 1) || (gameID > (list.size()))) {
             throw new BadRequestException("bad request");
