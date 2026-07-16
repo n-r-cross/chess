@@ -1,8 +1,7 @@
 package service;
 
+import model.GameData;
 import server.*;
-
-import java.util.ArrayList;
 
 public class GameService extends Service {
 
@@ -15,9 +14,7 @@ public class GameService extends Service {
         if (!r.complete()) {
             throw new BadRequestException("bad request");
         }
-        // TODO: create actual ListResult with games
-        gameData.listGames();
-        return new ListResult(new ArrayList<String>());
+        return new ListResult(gameData.listGames());
     }
 
     public CreateResult create(CreateRequest r) throws Exception {
