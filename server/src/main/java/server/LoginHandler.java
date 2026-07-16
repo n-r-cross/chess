@@ -23,7 +23,6 @@ public class LoginHandler implements Handler {
         // Validate username and password
         USER_SERVICE.validate(request.username(), request.password());
         LoginResult result = USER_SERVICE.login(request);
-        System.out.println(result);
         context.result(GSON.toJson(result));
     }
 }
