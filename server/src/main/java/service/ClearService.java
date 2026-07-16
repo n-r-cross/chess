@@ -1,9 +1,10 @@
 package service;
 
-import dataaccess.DataAccessException;
-
 public class ClearService extends Service {
-    public void clear() throws DataAccessException {
+    /**
+     * Clear all static Service data
+     */
+    public void clear() {
         userData.clear();
         authData.clear();
         gameData.clear();

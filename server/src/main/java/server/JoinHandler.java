@@ -17,8 +17,6 @@ public class JoinHandler implements Handler {
         GAME_SERVICE.validate(context.header("Authorization"));
         // Rehydrate request
         JoinRequest request = GSON.fromJson(context.body(), JoinRequest.class);
-        if (!request.complete()) {
-        }
         // Call join, including authToken to get username
         GAME_SERVICE.join(request, context.header("Authorization"));
         context.result();

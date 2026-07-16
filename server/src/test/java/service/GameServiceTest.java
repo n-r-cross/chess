@@ -1,7 +1,6 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,13 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GameServiceTest {
 
+    private static final ClearService CLEAR_SERVICE = new ClearService();
+
     void reset() {
-        ClearService clearService = new ClearService();
-        try {
-            clearService.clear();
-        } catch (DataAccessException e) {
-            fail();
-        }
+        CLEAR_SERVICE.clear();
     }
 
     @Test
@@ -76,9 +72,8 @@ class GameServiceTest {
         GameService gameService = new GameService();
         UserService userService = new UserService();
         reset();
-        RegisterResult result = null;
         try {
-            result = userService.register(new RegisterRequest("ga", "ga", "ga"));
+            userService.register(new RegisterRequest("ga", "ga", "ga"));
         } catch (Exception e) {
             fail();
         }
@@ -115,9 +110,8 @@ class GameServiceTest {
         GameService gameService = new GameService();
         UserService userService = new UserService();
         reset();
-        RegisterResult result = null;
         try {
-            result = userService.register(new RegisterRequest("ga", "ga", "ga"));
+            userService.register(new RegisterRequest("ga", "ga", "ga"));
         } catch (Exception e) {
             fail();
         }
@@ -139,9 +133,8 @@ class GameServiceTest {
         GameService gameService = new GameService();
         UserService userService = new UserService();
         reset();
-        RegisterResult result = null;
         try {
-            result = userService.register(new RegisterRequest("ga", "ga", "ga"));
+            userService.register(new RegisterRequest("ga", "ga", "ga"));
         } catch (Exception e) {
             fail();
         }

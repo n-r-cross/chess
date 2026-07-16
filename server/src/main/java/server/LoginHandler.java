@@ -6,6 +6,7 @@ import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
 import server.request.LoginRequest;
 import server.result.LoginResult;
+import service.BadRequestException;
 import service.UserService;
 
 public class LoginHandler implements Handler {
@@ -16,6 +17,9 @@ public class LoginHandler implements Handler {
     public void handle(@NotNull Context context) throws Exception {
         // Rehydrate request
         LoginRequest request = new Gson().fromJson(context.body(), LoginRequest.class);
+        if (!request.complete()) {
+            throw new BadRequestException("bad request");
+        }
         // Validate username and password
         USER_SERVICE.validate(request.username(), request.password());
         LoginResult result = USER_SERVICE.login(request);

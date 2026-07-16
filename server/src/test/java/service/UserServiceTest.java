@@ -17,11 +17,7 @@ class UserServiceTest {
     private static final ClearService CLEAR_SERVICE = new ClearService();
 
     void reset() {
-        try {
-            CLEAR_SERVICE.clear();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        CLEAR_SERVICE.clear();
     }
 
     @Test
