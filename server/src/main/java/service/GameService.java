@@ -31,6 +31,15 @@ public class GameService extends Service {
             throw new BadRequestException("bad request");
         }
         GameData g = gameData.getGame(r.gameID());
+        if (r.playerColor() == ChessGame.TeamColor.BLACK) {
+            if (g.blackUsername() != null) {
+                throw new ForbiddenException("Forbidden");
+            }
+        } else {
+            if (g.whiteUsername() != null) {
+                throw new ForbiddenException("Forbidden");
+            }
+        }
         String username = Service.authData.getAuth(authToken).username();
         // Update game to have player join game
         if (r.playerColor() == ChessGame.TeamColor.BLACK) {

@@ -210,7 +210,6 @@ class GameServiceTest {
         } catch (Exception e) {
             fail();
         }
-
         try {
             gameService.join(new JoinRequest(null, createResult.gameID()), registerResult.authToken());
             fail();
@@ -231,9 +230,21 @@ class GameServiceTest {
         }
         try {
             gameService.join(new JoinRequest(ChessGame.TeamColor.BLACK, createResult.gameID()), registerResult.authToken());
-            Assertions.assertEquals("ga", Service.gameData.getGame(createResult.gameID()).blackUsername());
+            gameService.join(new JoinRequest(ChessGame.TeamColor.WHITE, createResult.gameID()), registerResult.authToken());
         } catch (Exception e) {
             fail();
+        }
+        try {
+            gameService.join(new JoinRequest(ChessGame.TeamColor.BLACK, createResult.gameID()), registerResult.authToken());
+            fail();
+        } catch (Exception e) {
+            Assertions.assertEquals("Forbidden", e.getMessage());
+        }
+        try {
+            gameService.join(new JoinRequest(ChessGame.TeamColor.WHITE, createResult.gameID()), registerResult.authToken());
+            fail();
+        } catch (Exception e) {
+            Assertions.assertEquals("Forbidden", e.getMessage());
         }
     }
 }
