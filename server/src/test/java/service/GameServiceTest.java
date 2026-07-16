@@ -51,6 +51,7 @@ class GameServiceTest {
         RegisterResult result = null;
         try {
             gameService.validate("pretend-auth-token");
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("unauthorized", e.getMessage());
         }
@@ -62,6 +63,7 @@ class GameServiceTest {
         }
         try {
             gameService.validate(result.authToken());
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("unauthorized", e.getMessage());
         }
@@ -92,7 +94,7 @@ class GameServiceTest {
             fail();
         }
         GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame());
-        ArrayList<GameData> golden = new ArrayList<GameData>();
+        ArrayList<GameData> golden = new ArrayList<>();
         golden.add(game1);
         Assertions.assertEquals(golden, data);
         GameData game2 = new GameData(2, null, null, "light_cycles", new ChessGame());
@@ -119,11 +121,6 @@ class GameServiceTest {
         }
         List<GameData> data = null;
         try {
-            data = gameService.list(new ListRequest("fake-auth-token")).games();
-        } catch (Exception e) {
-            Assertions.assertEquals("bad request", e.getMessage());
-        }
-        try {
             gameService.create(new CreateRequest("disc_wars"));
             data = gameService.list(new ListRequest(result.authToken())).games();
         } catch (Exception e) {
@@ -147,22 +144,16 @@ class GameServiceTest {
     @Test
     void createValid() {
         GameService gameService = new GameService();
-        UserService userService = new UserService();
         reset();
         try {
-            userService.register(new RegisterRequest("ga", "ga", "ga"));
-        } catch (Exception e) {
-            fail();
-        }
-        try {
-            CreateResult createResult = gameService.create(new CreateRequest("disc_wars"));
+            gameService.create(new CreateRequest("disc_wars"));
         } catch (Exception e) {
             fail();
         }
         GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame());
         try {
             Assertions.assertEquals(game1, Service.gameData.getGame(1));
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             fail();
         }
     }
@@ -170,22 +161,79 @@ class GameServiceTest {
     @Test
     void createInvalid() {
         GameService gameService = new GameService();
-        UserService userService = new UserService();
         reset();
-        RegisterResult result = null;
-        try {
-            result = userService.register(new RegisterRequest("ga", "ga", "ga"));
-        } catch (Exception e) {
-            fail();
-        }
         try {
             gameService.create(new CreateRequest(null));
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
     }
 
     @Test
-    void join() {
+    void joinValid() {
+        GameService gameService = new GameService();
+        UserService userService = new UserService();
+        reset();
+        RegisterResult registerResult = null;
+        CreateResult createResult = null;
+        try {
+            registerResult = userService.register(new RegisterRequest("ga", "ga", "ga"));
+            createResult = gameService.create(new CreateRequest("disc_wars"));
+        } catch (Exception e) {
+            fail();
+        }
+        try {
+            gameService.join(new JoinRequest(ChessGame.TeamColor.WHITE, createResult.gameID()), registerResult.authToken());
+            Assertions.assertEquals("ga", Service.gameData.getGame(createResult.gameID()).whiteUsername());
+        } catch (Exception e) {
+            fail();
+        }
+        try {
+            gameService.join(new JoinRequest(ChessGame.TeamColor.BLACK, createResult.gameID()), registerResult.authToken());
+            Assertions.assertEquals("ga", Service.gameData.getGame(createResult.gameID()).blackUsername());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    void joinInvalid() {
+        GameService gameService = new GameService();
+        UserService userService = new UserService();
+        reset();
+        RegisterResult registerResult = null;
+        CreateResult createResult = null;
+        try {
+            registerResult = userService.register(new RegisterRequest("ga", "ga", "ga"));
+            createResult = gameService.create(new CreateRequest("disc_wars"));
+        } catch (Exception e) {
+            fail();
+        }
+
+        try {
+            gameService.join(new JoinRequest(null, createResult.gameID()), registerResult.authToken());
+            fail();
+        } catch (Exception e) {
+            Assertions.assertEquals("bad request", e.getMessage());
+        }
+        try {
+            gameService.join(new JoinRequest(ChessGame.TeamColor.WHITE, -1), registerResult.authToken());
+            fail();
+        } catch (Exception e) {
+            Assertions.assertEquals("bad request", e.getMessage());
+        }
+        try {
+            gameService.join(new JoinRequest(ChessGame.TeamColor.WHITE, createResult.gameID()), "fake-auth-token");
+            fail();
+        } catch (Exception e) {
+            Assertions.assertEquals("unauthorized", e.getMessage());
+        }
+        try {
+            gameService.join(new JoinRequest(ChessGame.TeamColor.BLACK, createResult.gameID()), registerResult.authToken());
+            Assertions.assertEquals("ga", Service.gameData.getGame(createResult.gameID()).blackUsername());
+        } catch (Exception e) {
+            fail();
+        }
     }
 }

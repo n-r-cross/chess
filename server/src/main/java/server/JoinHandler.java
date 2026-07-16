@@ -15,7 +15,7 @@ public class JoinHandler implements Handler {
         System.out.println("Handling join!");
         gameService.validate(context.header("Authorization"));
         JoinRequest request = gson.fromJson(context.body(), JoinRequest.class);
-        gameService.join(request);
+        gameService.join(request, context.header("Authorization"));
         context.result();
     }
 }

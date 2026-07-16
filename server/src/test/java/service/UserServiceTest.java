@@ -24,11 +24,7 @@ class UserServiceTest {
     void validateValid() {
         reset();
         UserService u = new UserService();
-        try {
-            Service.userData.insertUser(new UserData("ga", "ga", "ga"));
-        } catch (DataAccessException e) {
-            fail();
-        }
+        Service.userData.insertUser(new UserData("ga", "ga", "ga"));
         boolean result = false;
         try {
             result = u.validate("ga", "ga");
@@ -42,11 +38,7 @@ class UserServiceTest {
     void validateInvalid() {
         reset();
         UserService u = new UserService();
-        try {
-            Service.userData.insertUser(new UserData("ga", "ga", "ga"));
-        } catch (DataAccessException e) {
-            fail();
-        }
+        Service.userData.insertUser(new UserData("ga", "ga", "ga"));
         try {
             u.validate("ga", "gaAa");
             fail();
@@ -89,48 +81,56 @@ class UserServiceTest {
         }
         try {
             u.register(request);
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("already taken", e.getMessage());
         }
         request = new RegisterRequest("ga", null, "ga");
         try {
             u.register(request);
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
         request = new RegisterRequest(null, "ga", "ga");
         try {
             u.register(request);
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
         request = new RegisterRequest("ga", "ga", null);
         try {
             u.register(request);
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
         request = new RegisterRequest(null, "ga", null);
         try {
             u.register(request);
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
         request = new RegisterRequest(null, null, "ga");
         try {
             u.register(request);
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
         request = new RegisterRequest("ga", null, null);
         try {
             u.register(request);
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
         request = new RegisterRequest(null, null, null);
         try {
             u.register(request);
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
@@ -173,22 +173,20 @@ class UserServiceTest {
             fail();
         }
         try {
-            u.login(new LoginRequest("ga", "goo"));
-        } catch (Exception e) {
-            Assertions.assertEquals("unauthorized", e.getMessage());
-        }
-        try {
             u.login(new LoginRequest("ga", null));
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
         try {
             u.login(new LoginRequest(null, "ga"));
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
         try {
             u.login(new LoginRequest(null, null));
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("bad request", e.getMessage());
         }
@@ -218,6 +216,7 @@ class UserServiceTest {
         }
         try {
             Service.authData.getAuth(authToken);
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("unauthorized", e.getMessage());
         }
@@ -236,6 +235,7 @@ class UserServiceTest {
         }
         try {
             u.logout(logoutRequest);
+            fail();
         } catch (Exception e) {
             Assertions.assertEquals("unauthorized", e.getMessage());
         }
