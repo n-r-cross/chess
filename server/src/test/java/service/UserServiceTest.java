@@ -4,7 +4,11 @@ import dataaccess.DataAccessException;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import server.*;
+import server.request.LoginRequest;
+import server.request.LogoutRequest;
+import server.request.RegisterRequest;
+import server.result.LoginResult;
+import server.result.RegisterResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 

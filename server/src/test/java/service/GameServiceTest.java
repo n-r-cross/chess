@@ -5,7 +5,9 @@ import dataaccess.DataAccessException;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import server.*;
+import server.request.*;
+import server.result.CreateResult;
+import server.result.RegisterResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +72,7 @@ class GameServiceTest {
     }
 
     @Test
-    void listValid() {
+    void listEmpty() {
         GameService gameService = new GameService();
         UserService userService = new UserService();
         reset();
@@ -109,7 +111,7 @@ class GameServiceTest {
     }
 
     @Test
-    void listInvalid() {
+    void listOne() {
         GameService gameService = new GameService();
         UserService userService = new UserService();
         reset();
@@ -130,9 +132,27 @@ class GameServiceTest {
         ArrayList<GameData> golden = new ArrayList<>();
         golden.add(game1);
         Assertions.assertEquals(golden, data);
+    }
+
+    @Test
+    void listTwo() {
+        GameService gameService = new GameService();
+        UserService userService = new UserService();
+        reset();
+        RegisterResult result = null;
+        try {
+            result = userService.register(new RegisterRequest("ga", "ga", "ga"));
+        } catch (Exception e) {
+            fail();
+        }
+        List<GameData> data = null;
+        GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame());
         GameData game2 = new GameData(2, null, null, "light_cycles", new ChessGame());
+        ArrayList<GameData> golden = new ArrayList<>();
+        golden.add(game1);
         golden.add(game2);
         try {
+            gameService.create(new CreateRequest("disc_wars"));
             gameService.create(new CreateRequest("light_cycles"));
             data = gameService.list(new ListRequest(result.authToken())).games();
         } catch (Exception e) {
