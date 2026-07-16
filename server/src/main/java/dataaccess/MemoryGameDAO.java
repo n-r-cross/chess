@@ -6,6 +6,7 @@ import service.BadRequestException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MemoryGameDAO implements GameDAO {
     private final List<GameData> list = new ArrayList<>();
@@ -42,5 +43,19 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public void clear() {
         list.clear();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MemoryGameDAO that = (MemoryGameDAO) o;
+        return Objects.equals(list, that.list);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(list);
     }
 }

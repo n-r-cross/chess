@@ -34,4 +34,18 @@ public class MemoryAuthDAO implements AuthDAO {
     public void clear() {
         list.clear();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MemoryAuthDAO that = (MemoryAuthDAO) o;
+        return Objects.equals(list, that.list);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(list);
+    }
 }
