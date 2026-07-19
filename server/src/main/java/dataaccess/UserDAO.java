@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import service.ForbiddenException;
 
 public interface UserDAO {
     /**
@@ -8,7 +9,7 @@ public interface UserDAO {
      *
      * @param u UserData to add
      */
-    void insertUser(UserData u);
+    void insertUser(UserData u) throws ForbiddenException;
 
     /**
      * Get UserData with given username
@@ -16,7 +17,7 @@ public interface UserDAO {
      * @param username username to get
      * @return UserData with given username
      */
-    UserData getUser(String username);
+    UserData getUser(String username) throws DataAccessException;
 
     /**
      * Clear all user data

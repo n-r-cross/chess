@@ -24,7 +24,11 @@ class UserServiceTest {
     void validateValid() {
         reset();
         UserService u = new UserService();
-        Service.userData.insertUser(new UserData("ga", "ga", "ga"));
+        try {
+            Service.userData.insertUser(new UserData("ga", "ga", "ga"));
+        } catch (Exception e) {
+            fail();
+        }
         boolean result = false;
         try {
             result = u.validate("ga", "ga");
@@ -38,7 +42,11 @@ class UserServiceTest {
     void validateInvalid() {
         reset();
         UserService u = new UserService();
-        Service.userData.insertUser(new UserData("ga", "ga", "ga"));
+        try {
+            Service.userData.insertUser(new UserData("ga", "ga", "ga"));
+        } catch (Exception e) {
+            fail();
+        }
         try {
             u.validate("ga", "gaAa");
             fail();

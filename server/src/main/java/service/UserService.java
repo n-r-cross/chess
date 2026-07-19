@@ -49,9 +49,6 @@ public class UserService extends Service {
      */
     public boolean validate(String username, String password) throws DataAccessException {
         UserData u = users.getUser(username);
-        if (u == null) {
-            throw new DataAccessException("unauthorized");
-        }
         if (!password.equals(u.password())) {
             throw new DataAccessException("unauthorized");
         }
@@ -72,10 +69,6 @@ public class UserService extends Service {
         }
         // save userData
         UserData ud = new UserData(r.username(), r.password(), r.email());
-        UserData existing = users.getUser(r.username());
-        if (existing != null) {
-            throw new ForbiddenException("already taken");
-        }
         users.insertUser(ud);
         // save authData
         String token = newAuth(r.username());

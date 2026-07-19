@@ -8,13 +8,19 @@ import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 class ClearServiceTest {
     ClearService clearService = new ClearService();
 
 
     @Test
     void clearUserData() {
-        Service.userData.insertUser(new UserData("ga", "gaAa", "gaAaAa"));
+        try {
+            Service.userData.insertUser(new UserData("ga", "gaAa", "gaAaAa"));
+        } catch (Exception e) {
+            fail();
+        }
         clearService.clear();
         Assertions.assertEquals(new MemoryUserDAO(), Service.userData);
     }
@@ -35,7 +41,11 @@ class ClearServiceTest {
 
     @Test
     void noClearUserData() {
-        Service.userData.insertUser(new UserData("ga", "gaAa", "gaAaAa"));
+        try {
+            Service.userData.insertUser(new UserData("ga", "gaAa", "gaAaAa"));
+        } catch (Exception e) {
+            fail();
+        }
         Assertions.assertNotEquals(new MemoryUserDAO(), Service.userData);
     }
 

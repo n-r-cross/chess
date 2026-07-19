@@ -2,6 +2,7 @@ package dataaccess;
 
 
 import model.UserData;
+import service.ForbiddenException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,18 +12,23 @@ public class MemoryUserDAO implements UserDAO {
     List<UserData> list = new ArrayList<>();
 
     @Override
-    public void insertUser(UserData u) {
+    public void insertUser(UserData u) throws ForbiddenException {
+        for (UserData i : list) {
+            if (i.username().equals(u.username())) {
+                throw new ForbiddenException("already taken");
+            }
+        }
         list.add(u);
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         for (UserData i : list) {
             if (i.username().equals(username)) {
                 return i;
             }
         }
-        return null;
+        throw new DataAccessException("unauthorized");
     }
 
     @Override
