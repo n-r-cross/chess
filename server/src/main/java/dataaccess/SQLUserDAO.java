@@ -28,7 +28,7 @@ public class SQLUserDAO implements UserDAO {
                     CREATE TABLE  IF NOT EXISTS users (
                         username VARCHAR(255) NOT NULL,
                         password VARCHAR(255) NOT NULL,
-                        string VARCHAR(255) NOT NULL,
+                        email VARCHAR(255) NOT NULL,
                         PRIMARY KEY (username)
                     )""";
             // Execute command to create users table
@@ -66,10 +66,33 @@ public class SQLUserDAO implements UserDAO {
     }
 
     @Override
-    public void insertUser(UserData u) throws ForbiddenException {
+    public void insertUser(UserData u) throws Exception {
         // Check for existing username
-        throw new ForbiddenException("already taken");
-        // Add user
+        try (var conn = getConnection()) {
+            conn.setCatalog("chess_database");
+            String command = "SELECT username, password FROM users WHERE username=?";
+            try (var preparedStatement = conn.prepareStatement(command)) {
+                preparedStatement.setString(1, u.username());
+                try (var rs = preparedStatement.executeQuery()) {
+                    // throw exception if found
+                    if (rs.next()) {
+                        throw new ForbiddenException("already taken");
+                    }
+                }
+            }
+            // Add user
+            String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+            System.out.println(statement);
+            // Execute SQL statements on the connection here
+            try (var insertStatement = conn.prepareStatement(statement)) {
+                insertStatement.setString(1, u.username());
+                insertStatement.setString(2, u.password());
+                insertStatement.setString(3, u.email());
+                insertStatement.executeUpdate();
+            } catch (SQLException e2) {
+                throw new Exception("Insert failed");
+            }
+        }
     }
 
     @Override
@@ -86,12 +109,18 @@ public class SQLUserDAO implements UserDAO {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws Exception {
         // Clear data! GA!
         try {
-            makeSQLStatementCall("TRUNCATE users");
+            try (var conn = getConnection()) {
+                conn.setCatalog("chess_database");
+                // Execute SQL statements on the connection here
+                try (var createStatement = conn.prepareStatement("TRUNCATE users")) {
+                    createStatement.executeUpdate();
+                }
+            }
         } catch (SQLException e) {
-            throw new RuntimeException("clear failed");
+            throw new Exception("clear failed");
         }
     }
 }

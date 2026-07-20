@@ -9,7 +9,7 @@ public interface UserDAO {
      *
      * @param u UserData to add
      */
-    void insertUser(UserData u) throws ForbiddenException;
+    void insertUser(UserData u) throws Exception;
 
     /**
      * Get UserData with given username
@@ -22,5 +22,5 @@ public interface UserDAO {
     /**
      * Clear all user data
      */
-    void clear();
+    void clear() throws Exception;
 }

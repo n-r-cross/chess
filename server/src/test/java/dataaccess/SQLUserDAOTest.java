@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import service.ForbiddenException;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -12,7 +13,12 @@ class SQLUserDAOTest {
     @BeforeEach
     void beforeEach() {
         UserDAO userDAO = new SQLUserDAO();
-        userDAO.clear();
+        try {
+            userDAO.clear();
+        } catch (Exception e) {
+            System.out.println("Clear failed!");
+            fail();
+        }
     }
 
     @Test
@@ -32,7 +38,7 @@ class SQLUserDAOTest {
         Assertions.assertDoesNotThrow(() -> {
             userDAO.insertUser(ud);
         });
-        Assertions.assertThrows(DataAccessException.class, () -> {
+        Assertions.assertThrows(ForbiddenException.class, () -> {
             userDAO.insertUser(ud);
         });
     }
@@ -70,7 +76,12 @@ class SQLUserDAOTest {
         Assertions.assertDoesNotThrow(() -> {
             userDAO.insertUser(new UserData("ga", "ga", "ga"));
         });
-        userDAO.clear();
+        try {
+            userDAO.clear();
+        } catch (Exception e) {
+            System.out.println("Clear failed!");
+            fail();
+        }
         Assertions.assertThrows(DataAccessException.class, () -> {
             userDAO.getUser("ga");
         });
