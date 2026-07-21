@@ -31,5 +31,5 @@ public interface AuthDAO {
     /**
      * Clear all auth data
      */
-    void clear();
+    void clear() throws Exception;
 }

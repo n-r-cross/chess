@@ -26,9 +26,7 @@ class SQLUserDAOTest {
     @DisplayName("Valid User Insertion")
     void insertUserSuccess() {
         UserDAO userDAO = new SQLUserDAO();
-        Assertions.assertDoesNotThrow(() -> {
-            userDAO.insertUser(new UserData("ga", "ga", "ga"));
-        });
+        Assertions.assertDoesNotThrow(() -> userDAO.insertUser(new UserData("ga", "ga", "ga")));
     }
 
     @Test
@@ -36,12 +34,8 @@ class SQLUserDAOTest {
     void insertUserFail() {
         UserDAO userDAO = new SQLUserDAO();
         UserData ud = new UserData("ga", "ga", "ga");
-        Assertions.assertDoesNotThrow(() -> {
-            userDAO.insertUser(ud);
-        });
-        Assertions.assertThrows(ForbiddenException.class, () -> {
-            userDAO.insertUser(ud);
-        });
+        Assertions.assertDoesNotThrow(() -> userDAO.insertUser(ud));
+        Assertions.assertThrows(ForbiddenException.class, () -> userDAO.insertUser(ud));
     }
 
     @Test
@@ -49,9 +43,7 @@ class SQLUserDAOTest {
     void getUserSuccess() {
         UserDAO userDAO = new SQLUserDAO();
         UserData ud = new UserData("ga", "ga", "ga");
-        Assertions.assertDoesNotThrow(() -> {
-            userDAO.insertUser(new UserData("ga", "ga", "ga"));
-        });
+        Assertions.assertDoesNotThrow(() -> userDAO.insertUser(new UserData("ga", "ga", "ga")));
         UserData response = null;
         try {
             response = userDAO.getUser("ga");
@@ -69,26 +61,20 @@ class SQLUserDAOTest {
     @DisplayName("Invalid Get User (user doesn't exist)")
     void getUserFail() {
         UserDAO userDAO = new SQLUserDAO();
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            userDAO.getUser("ga");
-        });
+        Assertions.assertThrows(DataAccessException.class, () -> userDAO.getUser("ga"));
     }
 
     @Test
     void clear() {
         UserDAO userDAO = new SQLUserDAO();
         UserData ud = new UserData("ga", "ga", "ga");
-        Assertions.assertDoesNotThrow(() -> {
-            userDAO.insertUser(new UserData("ga", "ga", "ga"));
-        });
+        Assertions.assertDoesNotThrow(() -> userDAO.insertUser(ud));
         try {
             userDAO.clear();
         } catch (Exception e) {
             System.out.println("Clear failed!");
             fail();
         }
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            userDAO.getUser("ga");
-        });
+        Assertions.assertThrows(DataAccessException.class, () -> userDAO.getUser("ga"));
     }
 }

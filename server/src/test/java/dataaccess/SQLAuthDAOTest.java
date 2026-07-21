@@ -1,12 +1,10 @@
 package dataaccess;
 
 import model.AuthData;
-import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import service.ForbiddenException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,15 +25,9 @@ class SQLAuthDAOTest {
     @DisplayName("Create auth success")
     void createAuthSuccess() {
         AuthDAO authDAO = new SQLAuthDAO();
-        Assertions.assertDoesNotThrow(() -> {
-            authDAO.createAuth(new AuthData("ga", "ga"));
-        });
-        Assertions.assertDoesNotThrow(() -> {
-            authDAO.createAuth(new AuthData("gaAa", "ga"));
-        });
-        Assertions.assertDoesNotThrow(() -> {
-            authDAO.createAuth(new AuthData("ga", "gaAa"));
-        });
+        Assertions.assertDoesNotThrow(() -> authDAO.createAuth(new AuthData("ga", "ga")));
+        Assertions.assertDoesNotThrow(() -> authDAO.createAuth(new AuthData("gaAa", "ga")));
+        Assertions.assertDoesNotThrow(() -> authDAO.createAuth(new AuthData("gaAaAa", "gaAa")));
     }
 
     @Test
@@ -43,17 +35,11 @@ class SQLAuthDAOTest {
     void createAuthFail() {
         AuthDAO authDAO = new SQLAuthDAO();
         AuthData tokenNull = new AuthData(null, "ga");
-        Assertions.assertThrows(Exception.class, () -> {
-            authDAO.createAuth(tokenNull);
-        });
+        Assertions.assertThrows(Exception.class, () -> authDAO.createAuth(tokenNull));
         AuthData usernameNull = new AuthData("ga", null);
-        Assertions.assertThrows(Exception.class, () -> {
-            authDAO.createAuth(usernameNull);
-        });
+        Assertions.assertThrows(Exception.class, () -> authDAO.createAuth(usernameNull));
         AuthData bothNull = new AuthData(null, null);
-        Assertions.assertThrows(Exception.class, () -> {
-            authDAO.createAuth(usernameNull);
-        });
+        Assertions.assertThrows(Exception.class, () -> authDAO.createAuth(bothNull));
     }
 
     @Test
