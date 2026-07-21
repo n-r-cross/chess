@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import service.ForbiddenException;
 
 import java.sql.Connection;
@@ -15,6 +16,11 @@ public class SQLUserDAO implements UserDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Database could not connect");
         }
+    }
+
+    private String hashPassword(String clearTextPassword) {
+        // Return a hashed version of the password
+        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
     }
 
     private void configureDatabase() throws SQLException {
@@ -42,29 +48,6 @@ public class SQLUserDAO implements UserDAO {
         return DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "grinnings");
     }
 
-    private void makeSQLStatementCall(String command) throws SQLException {
-        //TODO: add check for sql injection
-        try (var conn = getConnection()) {
-            conn.setCatalog("chess_database");
-            // Execute SQL statements on the connection here
-            try (var createStatement = conn.prepareStatement(command)) {
-                createStatement.executeUpdate();
-            }
-        }
-    }
-
-    private java.sql.ResultSet makeSQLQueryCall(String command) throws SQLException {
-        //TODO: add check for sql injection
-        try (var conn = getConnection()) {
-            conn.setCatalog("chess_database");
-            try (var preparedStatement = conn.prepareStatement(command)) {
-                try (var rs = preparedStatement.executeQuery()) {
-                    return rs;
-                }
-            }
-        }
-    }
-
     @Override
     public void insertUser(UserData u) throws Exception {
         // Check for existing username
@@ -82,11 +65,10 @@ public class SQLUserDAO implements UserDAO {
             }
             // Add user
             String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-            System.out.println(statement);
             // Execute SQL statements on the connection here
             try (var insertStatement = conn.prepareStatement(statement)) {
                 insertStatement.setString(1, u.username());
-                insertStatement.setString(2, u.password());
+                insertStatement.setString(2, hashPassword(u.password()));
                 insertStatement.setString(3, u.email());
                 insertStatement.executeUpdate();
             } catch (SQLException e2) {
@@ -96,14 +78,25 @@ public class SQLUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
-        // Check for existing username and return UserData
-        try (var rs = makeSQLQueryCall(
-                "SELECT username, password, email FROM users WHERE username='" + username + "'")) {
-            return new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email"));
+    public UserData getUser(String username) throws Exception {
+        try (var conn = getConnection()) {
+            conn.setCatalog("chess_database");
+            // Check for existing username and return UserData
+            String command = "SELECT username, password, email FROM users WHERE username=?";
+            try (var preparedStatement = conn.prepareStatement(command)) {
+                preparedStatement.setString(1, username);
+                System.out.println("About to execute!");
+                try (var rs = preparedStatement.executeQuery()) {
+                    if (!rs.next()) {
+                        // throw exception if not found
+                        throw new DataAccessException("unauthorized");
+                    }
+                    return new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email"));
+                }
+            }
         } catch (SQLException e) {
-            // throw exception if not found
-            throw new DataAccessException("unauthorized");
+            // throw exception if something went wrong
+            throw new Exception("Get user failed!");
         }
 
     }

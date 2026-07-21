@@ -32,7 +32,7 @@ class UserServiceTest {
         boolean result = false;
         try {
             result = u.validate("ga", "ga");
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             fail();
         }
         assertTrue(result);
@@ -50,13 +50,13 @@ class UserServiceTest {
         try {
             u.validate("ga", "gaAa");
             fail();
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             Assertions.assertEquals("unauthorized", e.getMessage());
         }
         try {
             u.validate("gaAa", "gaAa");
             fail();
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             Assertions.assertEquals("unauthorized", e.getMessage());
         }
     }

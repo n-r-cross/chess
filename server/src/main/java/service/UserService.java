@@ -47,7 +47,7 @@ public class UserService extends Service {
      * @throws DataAccessException if no corresponding
      *                             username or no username/password combo
      */
-    public boolean validate(String username, String password) throws DataAccessException {
+    public boolean validate(String username, String password) throws Exception {
         UserData u = users.getUser(username);
         if (!password.equals(u.password())) {
             throw new DataAccessException("unauthorized");

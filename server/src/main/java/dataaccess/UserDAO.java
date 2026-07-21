@@ -17,7 +17,7 @@ public interface UserDAO {
      * @param username username to get
      * @return UserData with given username
      */
-    UserData getUser(String username) throws DataAccessException;
+    UserData getUser(String username) throws Exception;
 
     /**
      * Clear all user data

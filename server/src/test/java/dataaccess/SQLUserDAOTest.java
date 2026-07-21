@@ -55,6 +55,7 @@ class SQLUserDAOTest {
         try {
             response = userDAO.getUser("ga");
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             fail();
         }
         Assertions.assertEquals(ud, response);
