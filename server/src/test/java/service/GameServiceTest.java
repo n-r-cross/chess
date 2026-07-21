@@ -18,7 +18,11 @@ class GameServiceTest {
     private static final ClearService CLEAR_SERVICE = new ClearService();
 
     void reset() {
-        CLEAR_SERVICE.clear();
+        try {
+            CLEAR_SERVICE.clear();
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test

@@ -21,7 +21,11 @@ class ClearServiceTest {
         } catch (Exception e) {
             fail();
         }
-        clearService.clear();
+        try {
+            clearService.clear();
+        } catch (Exception e) {
+            fail();
+        }
         Assertions.assertEquals(new MemoryUserDAO(), Service.userData);
     }
 
@@ -35,7 +39,11 @@ class ClearServiceTest {
     @Test
     void clearGameData() {
         Service.gameData.createGame("disc_wars");
-        clearService.clear();
+        try {
+            clearService.clear();
+        } catch (Exception e) {
+            fail();
+        }
         Assertions.assertEquals(new MemoryGameDAO(), Service.gameData);
     }
 

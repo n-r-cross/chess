@@ -25,10 +25,10 @@ public class SQLUserDAO implements UserDAO {
 
     private void configureDatabase() throws SQLException {
         try (var conn = getConnection()) {
-            var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS chess_database");
+            var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS chess");
             createDbStatement.executeUpdate();
             // Statements will automatically take effect in chess_database
-            conn.setCatalog("chess_database");
+            conn.setCatalog("chess");
             // SQL code to create table of user data
             var createUsersTable = """
                     CREATE TABLE  IF NOT EXISTS users (
@@ -52,7 +52,7 @@ public class SQLUserDAO implements UserDAO {
     public void insertUser(UserData u) throws Exception {
         // Check for existing username
         try (var conn = getConnection()) {
-            conn.setCatalog("chess_database");
+            conn.setCatalog("chess");
             String command = "SELECT username, password FROM users WHERE username=?";
             try (var preparedStatement = conn.prepareStatement(command)) {
                 preparedStatement.setString(1, u.username());
@@ -80,7 +80,7 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public UserData getUser(String username) throws Exception {
         try (var conn = getConnection()) {
-            conn.setCatalog("chess_database");
+            conn.setCatalog("chess");
             // Check for existing username and return UserData
             String command = "SELECT username, password, email FROM users WHERE username=?";
             try (var preparedStatement = conn.prepareStatement(command)) {
@@ -105,7 +105,7 @@ public class SQLUserDAO implements UserDAO {
         // Clear data! GA!
         try {
             try (var conn = getConnection()) {
-                conn.setCatalog("chess_database");
+                conn.setCatalog("chess");
                 // Execute SQL statements on the connection here
                 try (var createStatement = conn.prepareStatement("TRUNCATE users")) {
                     createStatement.executeUpdate();

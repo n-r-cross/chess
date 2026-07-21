@@ -18,10 +18,10 @@ public class SQLAuthDAO implements AuthDAO {
 
     private void configureDatabase() throws SQLException {
         try (var conn = getConnection()) {
-            var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS chess_database");
+            var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS chess");
             createDbStatement.executeUpdate();
-            // Statements will automatically take effect in chess_database
-            conn.setCatalog("chess_database");
+            // Statements will automatically take effect in chess
+            conn.setCatalog("chess");
             // SQL code to create table of user data
             var createAuthsTable = """
                     CREATE TABLE  IF NOT EXISTS auths (
@@ -43,7 +43,7 @@ public class SQLAuthDAO implements AuthDAO {
     @Override
     public void createAuth(AuthData a) throws Exception {
         try (var conn = getConnection()) {
-            conn.setCatalog("chess_database");
+            conn.setCatalog("chess");
             // Add auth
             String statement = "INSERT INTO auths (authToken, username) VALUES (?, ?)";
             // Execute SQL statements on the connection here
@@ -60,7 +60,7 @@ public class SQLAuthDAO implements AuthDAO {
     @Override
     public AuthData getAuth(String token) throws Exception {
         try (var conn = getConnection()) {
-            conn.setCatalog("chess_database");
+            conn.setCatalog("chess");
             // Check for existing auth and return AuthData
             String command = "SELECT authToken,username FROM auths WHERE authToken=?";
             try (var preparedStatement = conn.prepareStatement(command)) {
@@ -82,7 +82,7 @@ public class SQLAuthDAO implements AuthDAO {
     @Override
     public void deleteAuth(String token) throws Exception {
         try (var conn = getConnection()) {
-            conn.setCatalog("chess_database");
+            conn.setCatalog("chess");
             // Delete from auths
             String command = "DELETE FROM auths WHERE authToken=?";
             try (var preparedStatement = conn.prepareStatement(command)) {
@@ -104,7 +104,7 @@ public class SQLAuthDAO implements AuthDAO {
         // Clear data! GA!
         try {
             try (var conn = getConnection()) {
-                conn.setCatalog("chess_database");
+                conn.setCatalog("chess");
                 // Execute SQL statements on the connection here
                 try (var createStatement = conn.prepareStatement("TRUNCATE auths")) {
                     createStatement.executeUpdate();
