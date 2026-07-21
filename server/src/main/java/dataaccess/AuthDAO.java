@@ -26,7 +26,7 @@ public interface AuthDAO {
      * @param token token to delete
      * @throws DataAccessException if token doesn't exist
      */
-    void deleteAuth(String token) throws DataAccessException;
+    void deleteAuth(String token) throws Exception;
 
     /**
      * Clear all auth data

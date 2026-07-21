@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.AuthData;
-import model.UserData;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -43,7 +42,6 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public void createAuth(AuthData a) throws Exception {
-        // Check for existing username
         try (var conn = getConnection()) {
             conn.setCatalog("chess_database");
             // Add auth
@@ -63,7 +61,7 @@ public class SQLAuthDAO implements AuthDAO {
     public AuthData getAuth(String token) throws Exception {
         try (var conn = getConnection()) {
             conn.setCatalog("chess_database");
-            // Check for existing username and return UserData
+            // Check for existing auth and return AuthData
             String command = "SELECT authToken,username FROM auths WHERE authToken=?";
             try (var preparedStatement = conn.prepareStatement(command)) {
                 preparedStatement.setString(1, token);
@@ -82,8 +80,23 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(String token) throws DataAccessException {
-
+    public void deleteAuth(String token) throws Exception {
+        try (var conn = getConnection()) {
+            conn.setCatalog("chess_database");
+            // Delete from auths
+            String command = "DELETE FROM auths WHERE authToken=?";
+            try (var preparedStatement = conn.prepareStatement(command)) {
+                preparedStatement.setString(1, token);
+                // Execute update and check how many rows were deleted
+                if (preparedStatement.executeUpdate() == 0) {
+                    // If none deleted, token isn't in database
+                    throw new DataAccessException("unauthorized");
+                }
+            }
+        } catch (SQLException e) {
+            // throw exception if something went wrong
+            throw new Exception("Get auth failed!");
+        }
     }
 
     @Override
