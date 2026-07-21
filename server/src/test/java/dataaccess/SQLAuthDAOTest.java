@@ -22,7 +22,7 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    @DisplayName("Create auth success")
+    @DisplayName("Valid Auth creation")
     void createAuthSuccess() {
         AuthDAO authDAO = new SQLAuthDAO();
         Assertions.assertDoesNotThrow(() -> authDAO.createAuth(new AuthData("ga", "ga")));
@@ -66,7 +66,24 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    void deleteAuth() {
+    @DisplayName("Valid Delete Auth (already exists)")
+    void deleteAuthSuccess() {
+        AuthDAO authDAO = new SQLAuthDAO();
+        Assertions.assertDoesNotThrow(() -> authDAO.createAuth(new AuthData("gaAa", "ga")));
+        Assertions.assertDoesNotThrow(() -> authDAO.getAuth("gaAa"));
+        Assertions.assertDoesNotThrow(() -> authDAO.deleteAuth("gaAa"));
+        Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth("gaAa"));
+    }
+
+    @Test
+    @DisplayName("Invalid Delete Auth")
+    void deleteAuthFail() {
+        AuthDAO authDAO = new SQLAuthDAO();
+        Assertions.assertThrows(DataAccessException.class, () -> authDAO.deleteAuth("gaAa"));
+        Assertions.assertDoesNotThrow(() -> authDAO.createAuth(new AuthData("gaAa", "ga")));
+        Assertions.assertDoesNotThrow(() -> authDAO.getAuth("gaAa"));
+        Assertions.assertDoesNotThrow(() -> authDAO.deleteAuth("gaAa"));
+        Assertions.assertThrows(DataAccessException.class, () -> authDAO.deleteAuth("gaAa"));
     }
 
     @Test
