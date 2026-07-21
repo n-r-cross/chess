@@ -26,7 +26,7 @@ class ClearServiceTest {
     }
 
     @Test
-    void clearAuthData() {
+    void clearAuthData() throws Exception {
         Service.authData.createAuth(new AuthData("ga", "gaAaAa"));
         clearService.clear();
         Assertions.assertEquals(new MemoryAuthDAO(), Service.authData);
@@ -51,7 +51,11 @@ class ClearServiceTest {
 
     @Test
     void noClearAuthData() {
-        Service.authData.createAuth(new AuthData("ga", "gaAaAa"));
+        try {
+            Service.authData.createAuth(new AuthData("ga", "gaAaAa"));
+        } catch (Exception e) {
+            fail();
+        }
         Assertions.assertNotEquals(new MemoryAuthDAO(), Service.authData);
     }
 

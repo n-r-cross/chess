@@ -9,7 +9,7 @@ public interface AuthDAO {
      *
      * @param a AuthData to add
      */
-    void createAuth(AuthData a);
+    void createAuth(AuthData a) throws Exception;
 
     /**
      * Get AuthData with given token

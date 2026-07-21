@@ -33,7 +33,7 @@ public class UserService extends Service {
      * @param username username corresponding to token
      * @return authToken as string
      */
-    protected String newAuth(String username) {
+    protected String newAuth(String username) throws Exception {
         String token = generateToken();
         authData.createAuth(new AuthData(token, username));
         return token;
