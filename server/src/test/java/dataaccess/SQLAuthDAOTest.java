@@ -1,10 +1,12 @@
 package dataaccess;
 
 import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +45,26 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    void getAuth() {
+    @DisplayName("Valid Get Auth (auth already exists)")
+    void getAuthSuccess() {
+        AuthDAO authDAO = new SQLAuthDAO();
+        AuthData ad = new AuthData("ga", "ga");
+        Assertions.assertDoesNotThrow(() -> authDAO.createAuth(ad));
+        AuthData response = null;
+        try {
+            response = authDAO.getAuth("ga");
+        } catch (Exception e) {
+            fail();
+        }
+        Assertions.assertEquals(ad.username(), response.username());
+        Assertions.assertEquals(ad.authToken(), response.authToken());
+    }
+
+    @Test
+    @DisplayName("Invalid Get Auth")
+    void getAuthFail() {
+        AuthDAO authDAO = new SQLAuthDAO();
+        Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth("ga"));
     }
 
     @Test

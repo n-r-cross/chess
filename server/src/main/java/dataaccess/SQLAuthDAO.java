@@ -42,7 +42,6 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public void createAuth(AuthData a) throws Exception {
-        System.out.println(a);
         // Check for existing username
         try (var conn = getConnection()) {
             conn.setCatalog("chess_database");
@@ -52,9 +51,7 @@ public class SQLAuthDAO implements AuthDAO {
             try (var insertStatement = conn.prepareStatement(statement)) {
                 insertStatement.setString(1, a.authToken());
                 insertStatement.setString(2, a.username());
-                System.out.println("About to execute");
                 insertStatement.executeUpdate();
-                System.out.println("Executed!");
             } catch (SQLException e2) {
                 throw new Exception("Insert failed");
             }
