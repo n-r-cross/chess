@@ -85,7 +85,6 @@ public class SQLUserDAO implements UserDAO {
             String command = "SELECT username, password, email FROM users WHERE username=?";
             try (var preparedStatement = conn.prepareStatement(command)) {
                 preparedStatement.setString(1, username);
-                System.out.println("About to execute!");
                 try (var rs = preparedStatement.executeQuery()) {
                     if (!rs.next()) {
                         // throw exception if not found

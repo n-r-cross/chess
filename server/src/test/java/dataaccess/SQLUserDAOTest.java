@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 import service.ForbiddenException;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -58,7 +59,10 @@ class SQLUserDAOTest {
             System.out.println(e.getMessage());
             fail();
         }
-        Assertions.assertEquals(ud, response);
+        Assertions.assertEquals(ud.username(), response.username());
+        Assertions.assertEquals(ud.email(), response.email());
+        Assertions.assertTrue(BCrypt.checkpw(ud.password(), response.password()));
+
     }
 
     @Test
