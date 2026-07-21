@@ -1,10 +1,7 @@
 package dataaccess;
 
 import model.AuthData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -88,6 +85,25 @@ class SQLAuthDAOTest {
 
     @Test
     void clear() {
+        AuthDAO authDAO = new SQLAuthDAO();
+        Assertions.assertDoesNotThrow(() -> authDAO.createAuth(new AuthData("gaAa", "ga")));
+        Assertions.assertDoesNotThrow(() -> authDAO.getAuth("gaAa"));
+        try {
+            authDAO.clear();
+        } catch (Exception e) {
+            fail();
+        }
+        Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth("gaAa"));
 
+    }
+
+    @AfterEach
+    void tearDown() {
+        AuthDAO authDAO = new SQLAuthDAO();
+        try {
+            authDAO.clear();
+        } catch (Exception e) {
+            System.out.println("Clear failed!");
+        }
     }
 }
