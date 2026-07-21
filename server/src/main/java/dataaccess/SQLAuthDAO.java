@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.AuthData;
+import model.UserData;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -59,8 +60,25 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public AuthData getAuth(String token) throws DataAccessException {
-        return null;
+    public AuthData getAuth(String token) throws Exception {
+        try (var conn = getConnection()) {
+            conn.setCatalog("chess_database");
+            // Check for existing username and return UserData
+            String command = "SELECT authToken,username FROM auths WHERE authToken=?";
+            try (var preparedStatement = conn.prepareStatement(command)) {
+                preparedStatement.setString(1, token);
+                try (var rs = preparedStatement.executeQuery()) {
+                    if (!rs.next()) {
+                        // throw exception if not found
+                        throw new DataAccessException("unauthorized");
+                    }
+                    return new AuthData(rs.getString("authToken"), rs.getString("username"));
+                }
+            }
+        } catch (SQLException e) {
+            // throw exception if something went wrong
+            throw new Exception("Get auth failed!");
+        }
     }
 
     @Override

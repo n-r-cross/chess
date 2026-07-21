@@ -18,7 +18,7 @@ public interface AuthDAO {
      * @return AuthData with given token
      * @throws DataAccessException if token doesn't exist
      */
-    AuthData getAuth(String token) throws DataAccessException;
+    AuthData getAuth(String token) throws Exception;
 
     /**
      * Delete the AuthData with given token
