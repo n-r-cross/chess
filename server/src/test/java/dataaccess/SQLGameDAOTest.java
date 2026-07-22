@@ -1,6 +1,9 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,14 +39,14 @@ class SQLGameDAOTest {
             fail();
         }
         int finalID = id;
-        Assertions.assertDoesNotThrow(() -> gameDAO.getGame(finalID));
+        assertDoesNotThrow(() -> gameDAO.getGame(finalID));
     }
 
     @Test
     @DisplayName("Invalid Game Creation")
     void createGameFail() {
         GameDAO gameDAO = new SQLGameDAO();
-        Assertions.assertThrows(Exception.class, () -> gameDAO.createGame(null));
+        assertThrows(Exception.class, () -> gameDAO.createGame(null));
     }
 
     @Test
@@ -64,7 +67,7 @@ class SQLGameDAOTest {
             fail();
         }
         ChessGame game = new ChessGame();
-        Assertions.assertEquals(gd, new GameData(1, null, null, "new_game", game));
+        assertEquals(gd, new GameData(1, null, null, "new_game", game));
     }
 
     @Test
@@ -72,7 +75,7 @@ class SQLGameDAOTest {
     void getGameFail() {
         GameDAO gameDAO = new SQLGameDAO();
         int finalID = 1;
-        Assertions.assertThrows(BadRequestException.class, () -> gameDAO.getGame(finalID));
+        assertThrows(BadRequestException.class, () -> gameDAO.getGame(finalID));
     }
 
     @Test
@@ -89,7 +92,7 @@ class SQLGameDAOTest {
         List<GameData> list = new ArrayList<>();
         list.add(game_1);
         try {
-            Assertions.assertEquals(list, gameDAO.listGames());
+            assertEquals(list, gameDAO.listGames());
         } catch (Exception e) {
             fail();
         }
@@ -102,7 +105,7 @@ class SQLGameDAOTest {
         GameData game_2 = new GameData(2, null, null, "game_2", game);
         list.add(game_2);
         try {
-            Assertions.assertEquals(list, gameDAO.listGames());
+            assertEquals(list, gameDAO.listGames());
         } catch (Exception e) {
             fail();
         }
@@ -113,14 +116,53 @@ class SQLGameDAOTest {
     void listGamesEmpty() {
         GameDAO gameDAO = new SQLGameDAO();
         try {
-            Assertions.assertEquals(new ArrayList<>(), gameDAO.listGames());
+            assertEquals(new ArrayList<>(), gameDAO.listGames());
         } catch (Exception e) {
             fail();
         }
     }
 
     @Test
-    void updateGame() {
+    @DisplayName("Valid update game")
+    void updateGameSuccess() {
+        GameDAO gameDAO = new SQLGameDAO();
+        GameData game = null;
+        try {
+            int id = gameDAO.createGame("new_game");
+            game = gameDAO.getGame(id);
+        } catch (Exception e) {
+            fail();
+        }
+        ChessGame chessGame = new ChessGame();
+        try {
+            chessGame.makeMove(new ChessMove(new ChessPosition(1, 1, true), new ChessPosition(2, 1, true), null));
+        } catch (InvalidMoveException e) {
+            fail();
+        }
+        GameData altered = new GameData(game.gameID(), "Sir-Gasalot", "Sir-Asalot",
+                "new_game", chessGame);
+        Assertions.assertDoesNotThrow(() -> gameDAO.updateGame(altered));
+        try {
+            Assertions.assertEquals(altered, gameDAO.getGame(game.gameID()));
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    @DisplayName("Invalid update game")
+    void updateGameFail() {
+        GameDAO gameDAO = new SQLGameDAO();
+        GameData game = null;
+        try {
+            int id = gameDAO.createGame("new_game");
+            game = gameDAO.getGame(id);
+        } catch (Exception e) {
+            fail();
+        }
+        GameData altered = new GameData(game.gameID() + 1, "Sir-Gasalot", "Sir-Asalot",
+                "new_game", new ChessGame());
+        Assertions.assertThrows(BadRequestException.class, () -> gameDAO.updateGame(altered));
     }
 
     @Test
