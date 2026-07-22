@@ -28,7 +28,7 @@ public interface GameDAO {
      *
      * @return a list of GameData
      */
-    List<GameData> listGames();
+    List<GameData> listGames() throws Exception;
 
     /**
      * Set a game to a new game object with same gameID

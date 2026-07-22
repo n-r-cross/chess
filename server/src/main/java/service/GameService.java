@@ -26,7 +26,7 @@ public class GameService extends Service {
      *
      * @return a list of GameData objects
      */
-    public ListResult list() {
+    public ListResult list() throws Exception {
         return new ListResult(gameData.listGames());
     }
 

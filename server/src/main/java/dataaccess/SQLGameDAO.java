@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SQLGameDAO implements GameDAO {
@@ -101,8 +102,27 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public List<GameData> listGames() {
-        return List.of();
+    public List<GameData> listGames() throws Exception {
+        List<GameData> list = new ArrayList<>();
+        try (var conn = getConnection()) {
+            conn.setCatalog("chess");
+            // Get game from game ID
+            String command = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games";
+            try (var preparedStatement = conn.prepareStatement(command)) {
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        ChessGame game = gson.fromJson(rs.getString("game"), ChessGame.class);
+                        GameData gd = new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"),
+                                rs.getString("blackUsername"), rs.getString("gameName"), game);
+                        list.add(gd);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            // throw exception if something went wrong
+            throw new Exception("List games failed!");
+        }
+        return list;
     }
 
     @Override
