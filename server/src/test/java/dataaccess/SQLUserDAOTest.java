@@ -1,10 +1,7 @@
 package dataaccess;
 
 import model.UserData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mindrot.jbcrypt.BCrypt;
 import service.ForbiddenException;
 
@@ -76,5 +73,15 @@ class SQLUserDAOTest {
             fail();
         }
         Assertions.assertThrows(DataAccessException.class, () -> userDAO.getUser("ga"));
+    }
+
+    @AfterEach
+    void tearDown() {
+        UserDAO userDAO = new SQLUserDAO();
+        try {
+            userDAO.clear();
+        } catch (Exception e) {
+            System.out.println("Clear failed!");
+        }
     }
 }

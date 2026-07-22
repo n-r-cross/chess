@@ -5,10 +5,7 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import chess.InvalidMoveException;
 import model.GameData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import service.BadRequestException;
 
 import java.util.ArrayList;
@@ -167,5 +164,34 @@ class SQLGameDAOTest {
 
     @Test
     void clear() {
+        GameDAO gameDAO = new SQLGameDAO();
+        int id = -1;
+        try {
+            id = gameDAO.createGame("new_game");
+        } catch (Exception e) {
+            fail();
+        }
+        int finalID = id;
+        assertDoesNotThrow(() -> gameDAO.getGame(finalID));
+        try {
+            gameDAO.clear();
+        } catch (Exception e) {
+            fail();
+        }
+        try {
+            assertEquals(new ArrayList<>(), gameDAO.listGames());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @AfterEach
+    void tearDown() {
+        GameDAO gameDAO = new SQLGameDAO();
+        try {
+            gameDAO.clear();
+        } catch (Exception e) {
+            System.out.println("Clear failed!");
+        }
     }
 }
