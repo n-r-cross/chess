@@ -8,6 +8,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import service.BadRequestException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SQLGameDAOTest {
@@ -73,7 +76,47 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void listGames() {
+    @DisplayName("Contains elements list games")
+    void listGamesFull() {
+        GameDAO gameDAO = new SQLGameDAO();
+        try {
+            gameDAO.createGame("game_1");
+        } catch (Exception e) {
+            fail();
+        }
+        ChessGame game = new ChessGame();
+        GameData game_1 = new GameData(1, null, null, "game_1", game);
+        List<GameData> list = new ArrayList<>();
+        list.add(game_1);
+        try {
+            Assertions.assertEquals(list, gameDAO.listGames());
+        } catch (Exception e) {
+            fail();
+        }
+        // Add second game
+        try {
+            gameDAO.createGame("game_2");
+        } catch (Exception e) {
+            fail();
+        }
+        GameData game_2 = new GameData(2, null, null, "game_2", game);
+        list.add(game_2);
+        try {
+            Assertions.assertEquals(list, gameDAO.listGames());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    @DisplayName("Empty list games")
+    void listGamesEmpty() {
+        GameDAO gameDAO = new SQLGameDAO();
+        try {
+            Assertions.assertEquals(new ArrayList<>(), gameDAO.listGames());
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test
