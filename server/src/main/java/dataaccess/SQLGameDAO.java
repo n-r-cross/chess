@@ -1,7 +1,10 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.GameData;
 import service.BadRequestException;
+import service.ForbiddenException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class SQLGameDAO implements GameDAO {
+    private final Gson gson = new Gson();
 
     public SQLGameDAO() {
         try {
@@ -20,7 +24,7 @@ public class SQLGameDAO implements GameDAO {
 
     private void configureDatabase() throws SQLException {
         try (var conn = getConnection()) {
-
+            // Create database
             var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS chess");
             createDbStatement.executeUpdate();
             // Statements will automatically take effect in chess_database
@@ -47,7 +51,22 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public int createGame(String gameName) {
+    public int createGame(String gameName) throws Exception {
+        try (var conn = getConnection()) {
+            conn.setCatalog("chess");
+            // Add game
+            String statement = "INSERT INTO games (gameName, game) VALUES (?, ?)";
+            // Execute SQL statements on the connection here
+            try (var insertStatement = conn.prepareStatement(statement)) {
+                insertStatement.setString(1, gameName);
+                ChessGame game = new ChessGame();
+                String gameString = gson.toJson(game);
+                insertStatement.setString(2, gameString);
+                insertStatement.executeUpdate();
+            } catch (SQLException e2) {
+                throw new Exception("Insert failed");
+            }
+        }
         return 0;
     }
 

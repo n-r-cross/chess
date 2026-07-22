@@ -12,7 +12,7 @@ public interface GameDAO {
      * @param gameName name of game
      * @return gameID
      */
-    int createGame(String gameName);
+    int createGame(String gameName) throws Exception;
 
     /**
      * Get a game with given gameID

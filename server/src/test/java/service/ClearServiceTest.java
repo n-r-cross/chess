@@ -38,7 +38,11 @@ class ClearServiceTest {
 
     @Test
     void clearGameData() {
-        Service.gameData.createGame("disc_wars");
+        try {
+            Service.gameData.createGame("disc_wars");
+        } catch (Exception e) {
+            fail();
+        }
         try {
             clearService.clear();
         } catch (Exception e) {
@@ -69,7 +73,11 @@ class ClearServiceTest {
 
     @Test
     void noClearGameData() {
-        Service.gameData.createGame("disc_wars");
+        try {
+            Service.gameData.createGame("disc_wars");
+        } catch (Exception e) {
+            fail();
+        }
         Assertions.assertNotEquals(new MemoryAuthDAO(), Service.authData);
     }
 }
