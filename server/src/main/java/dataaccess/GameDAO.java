@@ -41,5 +41,5 @@ public interface GameDAO {
     /**
      * Clear all game data
      */
-    void clear() throws Exception;
+    void clear() throws DataAccessException;
 }

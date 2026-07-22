@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 import org.junit.jupiter.api.*;
+import service.UnauthorizedException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,7 +60,7 @@ class SQLAuthDAOTest {
     @DisplayName("Invalid Get Auth")
     void getAuthFail() {
         AuthDAO authDAO = new SQLAuthDAO();
-        Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth("ga"));
+        Assertions.assertThrows(UnauthorizedException.class, () -> authDAO.getAuth("ga"));
     }
 
     @Test
@@ -69,18 +70,18 @@ class SQLAuthDAOTest {
         Assertions.assertDoesNotThrow(() -> authDAO.createAuth(new AuthData("gaAa", "ga")));
         Assertions.assertDoesNotThrow(() -> authDAO.getAuth("gaAa"));
         Assertions.assertDoesNotThrow(() -> authDAO.deleteAuth("gaAa"));
-        Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth("gaAa"));
+        Assertions.assertThrows(UnauthorizedException.class, () -> authDAO.getAuth("gaAa"));
     }
 
     @Test
     @DisplayName("Invalid Delete Auth")
     void deleteAuthFail() {
         AuthDAO authDAO = new SQLAuthDAO();
-        Assertions.assertThrows(DataAccessException.class, () -> authDAO.deleteAuth("gaAa"));
+        Assertions.assertThrows(UnauthorizedException.class, () -> authDAO.deleteAuth("gaAa"));
         Assertions.assertDoesNotThrow(() -> authDAO.createAuth(new AuthData("gaAa", "ga")));
         Assertions.assertDoesNotThrow(() -> authDAO.getAuth("gaAa"));
         Assertions.assertDoesNotThrow(() -> authDAO.deleteAuth("gaAa"));
-        Assertions.assertThrows(DataAccessException.class, () -> authDAO.deleteAuth("gaAa"));
+        Assertions.assertThrows(UnauthorizedException.class, () -> authDAO.deleteAuth("gaAa"));
     }
 
     @Test
@@ -93,7 +94,7 @@ class SQLAuthDAOTest {
         } catch (Exception e) {
             fail();
         }
-        Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth("gaAa"));
+        Assertions.assertThrows(UnauthorizedException.class, () -> authDAO.getAuth("gaAa"));
 
     }
 

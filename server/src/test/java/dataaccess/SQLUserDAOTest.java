@@ -4,6 +4,7 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import org.mindrot.jbcrypt.BCrypt;
 import service.ForbiddenException;
+import service.UnauthorizedException;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -58,7 +59,7 @@ class SQLUserDAOTest {
     @DisplayName("Invalid Get User (user doesn't exist)")
     void getUserFail() {
         UserDAO userDAO = new SQLUserDAO();
-        Assertions.assertThrows(DataAccessException.class, () -> userDAO.getUser("ga"));
+        Assertions.assertThrows(UnauthorizedException.class, () -> userDAO.getUser("ga"));
     }
 
     @Test
@@ -72,7 +73,7 @@ class SQLUserDAOTest {
             System.out.println("Clear failed!");
             fail();
         }
-        Assertions.assertThrows(DataAccessException.class, () -> userDAO.getUser("ga"));
+        Assertions.assertThrows(UnauthorizedException.class, () -> userDAO.getUser("ga"));
     }
 
     @AfterEach

@@ -68,7 +68,7 @@ public class SQLGameDAO implements GameDAO {
                 }
                 return ID;
             } catch (SQLException e2) {
-                throw new Exception("Create game failed");
+                throw new DataAccessException("Create game failed");
             }
         }
     }
@@ -93,7 +93,7 @@ public class SQLGameDAO implements GameDAO {
             }
         } catch (SQLException e) {
             // throw exception if something went wrong
-            throw new Exception("Get game failed!");
+            throw new DataAccessException("Get game failed!");
         }
     }
 
@@ -116,7 +116,7 @@ public class SQLGameDAO implements GameDAO {
             }
         } catch (SQLException e) {
             // throw exception if something went wrong
-            throw new Exception("List games failed!");
+            throw new DataAccessException("List games failed!");
         }
         return list;
     }
@@ -138,12 +138,12 @@ public class SQLGameDAO implements GameDAO {
             }
         } catch (SQLException e) {
             // throw exception if something went wrong
-            throw new Exception("Update game failed!");
+            throw new DataAccessException("Update game failed!");
         }
     }
 
     @Override
-    public void clear() throws Exception {
+    public void clear() throws DataAccessException {
         // Clear data! GA!
         try {
             try (var conn = getConnection()) {
@@ -153,8 +153,8 @@ public class SQLGameDAO implements GameDAO {
                     createStatement.executeUpdate();
                 }
             }
-        } catch (SQLException e) {
-            throw new Exception("clear failed");
+        } catch (Exception e) {
+            throw new DataAccessException("clear failed");
         }
     }
 }

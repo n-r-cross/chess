@@ -3,6 +3,7 @@ package dataaccess;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 import service.ForbiddenException;
+import service.UnauthorizedException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -71,7 +72,7 @@ public class SQLUserDAO implements UserDAO {
                 insertStatement.setString(3, u.email());
                 insertStatement.executeUpdate();
             } catch (SQLException e2) {
-                throw new Exception("Insert failed");
+                throw new DataAccessException("Insert failed");
             }
         }
     }
@@ -87,20 +88,20 @@ public class SQLUserDAO implements UserDAO {
                 try (var rs = preparedStatement.executeQuery()) {
                     if (!rs.next()) {
                         // throw exception if not found
-                        throw new DataAccessException("unauthorized");
+                        throw new UnauthorizedException("unauthorized");
                     }
                     return new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email"));
                 }
             }
         } catch (SQLException e) {
             // throw exception if something went wrong
-            throw new Exception("Get user failed!");
+            throw new DataAccessException("Get user failed!");
         }
 
     }
 
     @Override
-    public void clear() throws Exception {
+    public void clear() throws DataAccessException {
         // Clear data! GA!
         try {
             try (var conn = getConnection()) {
@@ -110,8 +111,8 @@ public class SQLUserDAO implements UserDAO {
                     createStatement.executeUpdate();
                 }
             }
-        } catch (SQLException e) {
-            throw new Exception("clear failed");
+        } catch (Exception e) {
+            throw new DataAccessException("clear failed");
         }
     }
 }

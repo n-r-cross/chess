@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
@@ -45,13 +44,13 @@ public class UserService extends Service {
      * @param username username to check
      * @param password password to check
      * @return true if both match
-     * @throws DataAccessException if no corresponding
-     *                             username or no username/password combo
+     * @throws UnauthorizedException if no corresponding
+     *                               username or no username/password combo
      */
     public boolean validate(String username, String password) throws Exception {
         UserData u = users.getUser(username);
         if (!BCrypt.checkpw(password, u.password())) {
-            throw new DataAccessException("unauthorized");
+            throw new UnauthorizedException("unauthorized");
         }
         return true;
     }

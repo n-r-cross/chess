@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.AuthData;
+import service.UnauthorizedException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -51,7 +52,7 @@ public class SQLAuthDAO implements AuthDAO {
                 insertStatement.setString(2, a.username());
                 insertStatement.executeUpdate();
             } catch (SQLException e2) {
-                throw new Exception("Insert failed");
+                throw new DataAccessException("Insert failed");
             }
         }
     }
@@ -67,14 +68,14 @@ public class SQLAuthDAO implements AuthDAO {
                 try (var rs = preparedStatement.executeQuery()) {
                     if (!rs.next()) {
                         // throw exception if not found
-                        throw new DataAccessException("unauthorized");
+                        throw new UnauthorizedException("unauthorized");
                     }
                     return new AuthData(rs.getString("authToken"), rs.getString("username"));
                 }
             }
         } catch (SQLException e) {
             // throw exception if something went wrong
-            throw new Exception("Get auth failed!");
+            throw new DataAccessException("Get auth failed!");
         }
     }
 
@@ -89,17 +90,17 @@ public class SQLAuthDAO implements AuthDAO {
                 // Execute update and check how many rows were deleted
                 if (preparedStatement.executeUpdate() == 0) {
                     // If none deleted, token isn't in database
-                    throw new DataAccessException("unauthorized");
+                    throw new UnauthorizedException("unauthorized");
                 }
             }
         } catch (SQLException e) {
             // throw exception if something went wrong
-            throw new Exception("Get auth failed!");
+            throw new DataAccessException("Get auth failed!");
         }
     }
 
     @Override
-    public void clear() throws Exception {
+    public void clear() throws DataAccessException {
         // Clear data! GA!
         try {
             try (var conn = getConnection()) {
@@ -109,8 +110,8 @@ public class SQLAuthDAO implements AuthDAO {
                     createStatement.executeUpdate();
                 }
             }
-        } catch (SQLException e) {
-            throw new Exception("clear failed");
+        } catch (Exception e) {
+            throw new DataAccessException("clear failed");
         }
     }
 }

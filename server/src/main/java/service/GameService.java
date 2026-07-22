@@ -17,6 +17,7 @@ public class GameService extends Service {
      * @throws Exception if authToken doesn't exist
      */
     public boolean validate(String authToken) throws Exception {
+        // System.out.println(authToken);
         authData.getAuth(authToken);
         return true;
     }

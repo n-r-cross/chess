@@ -1,11 +1,11 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.BadRequestException;
 import service.ForbiddenException;
+import service.UnauthorizedException;
 
 import java.util.Map;
 
@@ -33,7 +33,7 @@ public class Server {
         javalin.put("/game", joinHandler);
         // Register exceptions
         javalin.exception(Exception.class, this::exceptionHandler);
-        javalin.exception(DataAccessException.class, this::dataAccessExceptionHandler);
+        javalin.exception(UnauthorizedException.class, this::unauthorizedExceptionHandler);
         javalin.exception(BadRequestException.class, this::badRequestExceptionHandler);
         javalin.exception(ForbiddenException.class, this::forbiddenExceptionHandler);
 
@@ -59,11 +59,11 @@ public class Server {
     }
 
     /**
-     * Handle data access exceptions (usually
+     * Handle unauthorized exceptions (usually
      * unauthorized for wrong username/password
      * or no authToken)
      */
-    private void dataAccessExceptionHandler(DataAccessException e, Context context) {
+    private void unauthorizedExceptionHandler(UnauthorizedException e, Context context) {
         var body = new Gson().toJson(Map.of("message",
                 String.format("Error: %s", e.getMessage()), "success", false));
         context.status(401);

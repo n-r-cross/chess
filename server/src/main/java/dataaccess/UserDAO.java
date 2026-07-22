@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.UserData;
-import service.ForbiddenException;
 
 public interface UserDAO {
     /**
@@ -22,5 +21,5 @@ public interface UserDAO {
     /**
      * Clear all user data
      */
-    void clear() throws Exception;
+    void clear() throws DataAccessException;
 }
