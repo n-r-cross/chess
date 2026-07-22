@@ -16,6 +16,8 @@ public class SQLGameDAO implements GameDAO {
 
     public SQLGameDAO() {
         try {
+            // Create database
+            DatabaseManager.createDatabase();
             configureDatabase();
         } catch (Exception e) {
             throw new RuntimeException("Database could not connect");
@@ -24,8 +26,6 @@ public class SQLGameDAO implements GameDAO {
 
     private void configureDatabase() throws Exception {
         try (var conn = getConnection()) {
-            // Create database
-            DatabaseManager.createDatabase();
             // SQL code to create table of user data
             var createGamesTable = """
                     CREATE TABLE IF NOT EXISTS games (

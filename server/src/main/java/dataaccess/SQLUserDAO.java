@@ -12,6 +12,8 @@ public class SQLUserDAO implements UserDAO {
 
     public SQLUserDAO() {
         try {
+            // Create database
+            DatabaseManager.createDatabase();
             configureDatabase();
         } catch (Exception e) {
             throw new RuntimeException("Database could not connect");
@@ -25,8 +27,6 @@ public class SQLUserDAO implements UserDAO {
 
     private void configureDatabase() throws Exception {
         try (var conn = getConnection()) {
-            // Create database
-            DatabaseManager.createDatabase();
             // Statements will automatically take effect in chess_database
             conn.setCatalog("chess");
             // SQL code to create table of user data
