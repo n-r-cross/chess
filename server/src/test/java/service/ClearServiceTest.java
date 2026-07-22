@@ -1,18 +1,19 @@
 package service;
 
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 class ClearServiceTest {
     ClearService clearService = new ClearService();
-
 
     @Test
     void clearUserData() {
@@ -26,14 +27,14 @@ class ClearServiceTest {
         } catch (Exception e) {
             fail();
         }
-        Assertions.assertEquals(new MemoryUserDAO(), Service.userData);
+        Assertions.assertThrows(Exception.class, () -> Service.userData.getUser("ga"));
     }
 
     @Test
     void clearAuthData() throws Exception {
         Service.authData.createAuth(new AuthData("ga", "gaAaAa"));
         clearService.clear();
-        Assertions.assertEquals(new MemoryAuthDAO(), Service.authData);
+        Assertions.assertThrows(Exception.class, () -> Service.authData.getAuth("ga"));
     }
 
     @Test
@@ -48,7 +49,11 @@ class ClearServiceTest {
         } catch (Exception e) {
             fail();
         }
-        Assertions.assertEquals(new MemoryGameDAO(), Service.gameData);
+        try {
+            Assertions.assertEquals(new ArrayList<GameData>(), Service.gameData.listGames());
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test
@@ -58,7 +63,7 @@ class ClearServiceTest {
         } catch (Exception e) {
             fail();
         }
-        Assertions.assertNotEquals(new MemoryUserDAO(), Service.userData);
+        Assertions.assertDoesNotThrow(() -> Service.userData.getUser("ga"));
     }
 
     @Test
@@ -68,7 +73,7 @@ class ClearServiceTest {
         } catch (Exception e) {
             fail();
         }
-        Assertions.assertNotEquals(new MemoryAuthDAO(), Service.authData);
+        Assertions.assertDoesNotThrow(() -> Service.authData.getAuth("ga"));
     }
 
     @Test
@@ -78,6 +83,19 @@ class ClearServiceTest {
         } catch (Exception e) {
             fail();
         }
-        Assertions.assertNotEquals(new MemoryAuthDAO(), Service.authData);
+        try {
+            Assertions.assertNotEquals(new ArrayList<GameData>(), Service.gameData.listGames());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @BeforeEach
+    void setUp() {
+        try {
+            clearService.clear();
+        } catch (Exception e) {
+            fail();
+        }
     }
 }
