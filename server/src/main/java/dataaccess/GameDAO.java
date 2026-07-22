@@ -21,7 +21,7 @@ public interface GameDAO {
      * @return GameData of game with gameID
      * @throws BadRequestException if gameID is invalid
      */
-    GameData getGame(int gameID) throws BadRequestException;
+    GameData getGame(int gameID) throws Exception;
 
     /**
      * Get a list of all games

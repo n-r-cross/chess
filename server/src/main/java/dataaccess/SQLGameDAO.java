@@ -4,11 +4,11 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 import service.BadRequestException;
-import service.ForbiddenException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 public class SQLGameDAO implements GameDAO {
@@ -57,22 +57,47 @@ public class SQLGameDAO implements GameDAO {
             // Add game
             String statement = "INSERT INTO games (gameName, game) VALUES (?, ?)";
             // Execute SQL statements on the connection here
-            try (var insertStatement = conn.prepareStatement(statement)) {
+            try (var insertStatement = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
                 insertStatement.setString(1, gameName);
                 ChessGame game = new ChessGame();
                 String gameString = gson.toJson(game);
                 insertStatement.setString(2, gameString);
                 insertStatement.executeUpdate();
+                // Get gameID
+                var resultSet = insertStatement.getGeneratedKeys();
+                var ID = 0;
+                if (resultSet.next()) {
+                    ID = resultSet.getInt(1);
+                }
+                return ID;
             } catch (SQLException e2) {
-                throw new Exception("Insert failed");
+                throw new Exception("Create game failed");
             }
         }
-        return 0;
     }
 
     @Override
-    public GameData getGame(int gameID) throws BadRequestException {
-        return null;
+    public GameData getGame(int gameID) throws Exception {
+        try (var conn = getConnection()) {
+            conn.setCatalog("chess");
+            // Get game from game ID
+            String command = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games WHERE gameID=?";
+            try (var preparedStatement = conn.prepareStatement(command)) {
+                preparedStatement.setInt(1, gameID);
+                try (var rs = preparedStatement.executeQuery()) {
+                    if (!rs.next()) {
+                        // throw exception if not found
+                        throw new BadRequestException("bad request");
+                    }
+                    ChessGame game = gson.fromJson(rs.getString("game"), ChessGame.class);
+                    return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"),
+                            rs.getString("blackUsername"), rs.getString("gameName"), game);
+                }
+            }
+        } catch (SQLException e) {
+            // throw exception if something went wrong
+            throw new Exception("Get game failed!");
+        }
     }
 
     @Override
@@ -92,7 +117,7 @@ public class SQLGameDAO implements GameDAO {
             try (var conn = getConnection()) {
                 conn.setCatalog("chess");
                 // Execute SQL statements on the connection here
-                try (var createStatement = conn.prepareStatement("TRUNCATE users")) {
+                try (var createStatement = conn.prepareStatement("TRUNCATE games")) {
                     createStatement.executeUpdate();
                 }
             }
