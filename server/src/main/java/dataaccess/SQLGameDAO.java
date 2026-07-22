@@ -62,11 +62,11 @@ public class SQLGameDAO implements GameDAO {
                 insertStatement.executeUpdate();
                 // Get gameID
                 var resultSet = insertStatement.getGeneratedKeys();
-                var ID = 0;
+                var id = 0;
                 if (resultSet.next()) {
-                    ID = resultSet.getInt(1);
+                    id = resultSet.getInt(1);
                 }
-                return ID;
+                return id;
             } catch (SQLException e2) {
                 throw new DataAccessException("Create game failed");
             }
