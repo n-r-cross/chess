@@ -50,7 +50,6 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public int createGame(String gameName) throws Exception {
         try (var conn = getConnection()) {
-            conn.setCatalog("chess");
             // Add game
             String statement = "INSERT INTO games (gameName, game) VALUES (?, ?)";
             // Execute SQL statements on the connection here
@@ -76,7 +75,6 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public GameData getGame(int gameID) throws Exception {
         try (var conn = getConnection()) {
-            conn.setCatalog("chess");
             // Get game from game ID
             String command = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games WHERE gameID=?";
             try (var preparedStatement = conn.prepareStatement(command)) {
@@ -101,7 +99,6 @@ public class SQLGameDAO implements GameDAO {
     public List<GameData> listGames() throws Exception {
         List<GameData> list = new ArrayList<>();
         try (var conn = getConnection()) {
-            conn.setCatalog("chess");
             // Get game from game ID
             String command = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games";
             try (var preparedStatement = conn.prepareStatement(command)) {
@@ -124,7 +121,6 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public void updateGame(GameData game) throws Exception {
         try (var conn = getConnection()) {
-            conn.setCatalog("chess");
             String updateString = "UPDATE games SET whiteUsername=?, blackUsername=?, game=? WHERE gameID=?";
             try (var preparedStatement = conn.prepareStatement(updateString)) {
                 preparedStatement.setString(1, game.whiteUsername());
@@ -147,7 +143,6 @@ public class SQLGameDAO implements GameDAO {
         // Clear data! GA!
         try {
             try (var conn = getConnection()) {
-                conn.setCatalog("chess");
                 // Execute SQL statements on the connection here
                 try (var createStatement = conn.prepareStatement("TRUNCATE games")) {
                     createStatement.executeUpdate();
