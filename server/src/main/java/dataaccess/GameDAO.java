@@ -36,7 +36,7 @@ public interface GameDAO {
      * @param game GameData object to replace with
      * @throws BadRequestException if gameID is invalid
      */
-    void updateGame(GameData game) throws BadRequestException;
+    void updateGame(GameData game) throws Exception;
 
     /**
      * Clear all game data
