@@ -5,7 +5,6 @@ import org.mindrot.jbcrypt.BCrypt;
 import service.ForbiddenException;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class SQLUserDAO implements UserDAO {
@@ -13,7 +12,7 @@ public class SQLUserDAO implements UserDAO {
     public SQLUserDAO() {
         try {
             configureDatabase();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Database could not connect");
         }
     }
@@ -23,10 +22,10 @@ public class SQLUserDAO implements UserDAO {
         return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
     }
 
-    private void configureDatabase() throws SQLException {
+    private void configureDatabase() throws Exception {
         try (var conn = getConnection()) {
-            var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS chess");
-            createDbStatement.executeUpdate();
+            // Create database
+            DatabaseManager.createDatabase();
             // Statements will automatically take effect in chess_database
             conn.setCatalog("chess");
             // SQL code to create table of user data
@@ -44,8 +43,8 @@ public class SQLUserDAO implements UserDAO {
         }
     }
 
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "grinnings");
+    private Connection getConnection() throws Exception {
+        return DatabaseManager.getConnection();
     }
 
     @Override

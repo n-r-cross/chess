@@ -6,7 +6,6 @@ import model.GameData;
 import service.BadRequestException;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -18,18 +17,15 @@ public class SQLGameDAO implements GameDAO {
     public SQLGameDAO() {
         try {
             configureDatabase();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Database could not connect");
         }
     }
 
-    private void configureDatabase() throws SQLException {
+    private void configureDatabase() throws Exception {
         try (var conn = getConnection()) {
             // Create database
-            var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS chess");
-            createDbStatement.executeUpdate();
-            // Statements will automatically take effect in chess_database
-            conn.setCatalog("chess");
+            DatabaseManager.createDatabase();
             // SQL code to create table of user data
             var createGamesTable = """
                     CREATE TABLE IF NOT EXISTS games (
@@ -47,8 +43,8 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "grinnings");
+    private Connection getConnection() throws Exception {
+        return DatabaseManager.getConnection();
     }
 
     @Override

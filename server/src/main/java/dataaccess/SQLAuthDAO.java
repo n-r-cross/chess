@@ -3,7 +3,6 @@ package dataaccess;
 import model.AuthData;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class SQLAuthDAO implements AuthDAO {
@@ -11,15 +10,15 @@ public class SQLAuthDAO implements AuthDAO {
     public SQLAuthDAO() {
         try {
             configureDatabase();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Database could not connect");
         }
     }
 
-    private void configureDatabase() throws SQLException {
+    private void configureDatabase() throws Exception {
         try (var conn = getConnection()) {
-            var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS chess");
-            createDbStatement.executeUpdate();
+            // Create database
+            DatabaseManager.createDatabase();
             // Statements will automatically take effect in chess
             conn.setCatalog("chess");
             // SQL code to create table of user data
@@ -36,8 +35,8 @@ public class SQLAuthDAO implements AuthDAO {
         }
     }
 
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "grinnings");
+    private Connection getConnection() throws Exception {
+        return DatabaseManager.getConnection();
     }
 
     @Override
