@@ -96,11 +96,35 @@ public class ServerFacadeTests {
 
     @Test
     public void createGameFail() {
+        Assertions.assertThrows(Exception.class, () -> serverFacade.createGame(null, "fake-auth-token"));
+        String token = "";
+        try {
+            token = serverFacade.register("ga", "ga", "ga").authToken();
+        } catch (Exception e) {
+            fail();
+        }
+        String finalToken = token;
+        Assertions.assertThrows(Exception.class, () -> serverFacade.createGame(null, finalToken));
+
     }
 
     @Test
     public void createGameSuccess() {
+        String token = "";
+        try {
+            token = serverFacade.register("ga", "ga", "ga").authToken();
+        } catch (Exception e) {
+            fail();
+        }
 
+        int id = -1;
+        try {
+            id = serverFacade.createGame("light_cycles", token);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            fail();
+        }
+        Assertions.assertNotEquals(-1, id);
     }
 
 
