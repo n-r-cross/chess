@@ -2,6 +2,8 @@ package ui;
 
 import client.Client;
 
+import static ui.EscapeSequences.*;
+
 public class PreUI {
     private final Client client;
 
@@ -14,7 +16,7 @@ public class PreUI {
     }
 
     public void prompt() {
-        System.out.print("Logged out >>> ");
+        System.out.print(RESET_TEXT_COLOR + "Logged out >>> ");
     }
 
     public int run(String input) {
@@ -25,7 +27,7 @@ public class PreUI {
                 return -1;
             case "login":
                 if (incorrectArgCount(3, inputs.length)) {
-                    System.out.println("Error: Wrong number of arguments");
+                    System.out.println(SET_TEXT_COLOR_RED + "Error: Wrong number of arguments");
                     return 0;
                 }
                 try {
@@ -37,7 +39,7 @@ public class PreUI {
                 return 1;
             case "register":
                 if (incorrectArgCount(4, inputs.length)) {
-                    System.out.println("Error: Wrong number of arguments");
+                    System.out.println(SET_TEXT_COLOR_RED + "Error: Wrong number of arguments");
                     return 0;
                 }
                 try {
@@ -51,7 +53,7 @@ public class PreUI {
                 help();
                 return 0;
             default:
-                System.out.println("Error: Invalid command. Type 'help' for list of valid commands");
+                System.out.println(SET_TEXT_COLOR_RED + "Error: Invalid command. Type 'help' for list of valid commands");
                 return 0;
         }
     }

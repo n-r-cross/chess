@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import model.GameData;
 import server.result.ListResult;
@@ -7,6 +8,8 @@ import server.result.LoginResult;
 import server.result.RegisterResult;
 
 import java.util.List;
+
+import static ui.EscapeSequences.ERASE_SCREEN;
 
 public class Client {
 
@@ -76,5 +79,19 @@ public class Client {
         }
         int gameID = games.get(game_number).gameID();
         serverFacade.joinGame(color, gameID, authToken);
+        printGame(game_number);
+
+    }
+
+    private void printGame(int game_number) {
+        ChessGame game = games.get(game_number).game();
+        ChessBoard board = game.getBoard();
+        System.out.println(ERASE_SCREEN);
+        for (int i = 0; i <= 7; i++) {
+            for (int j = 7; j >= 0; j--) {
+                System.out.print(" " + board.getPiece(j, i) + " ");
+            }
+            System.out.println();
+        }
     }
 }
