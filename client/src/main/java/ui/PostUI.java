@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import client.Client;
 
 public class PostUI {
@@ -36,7 +37,7 @@ public class PostUI {
                 return 1;
             case "create":
                 if (!checkArgCount(2, inputs.length)) {
-                    System.out.println("Wrong number of arguments");
+                    System.out.println("Error: Wrong number of arguments");
                     return 1;
                 }
                 try {
@@ -47,14 +48,39 @@ public class PostUI {
                 return 1;
             case "list":
                 try {
-                    System.out.println("Trying to list games");
                     client.list();
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
                 return 1;
+            case "join":
+                if (!checkArgCount(3, inputs.length)) {
+                    System.out.println("Error: Wrong number of arguments");
+                    return 1;
+                }
+                int game_number = -1;
+                try {
+                    game_number = Integer.parseInt(inputs[1]) - 1;
+                } catch (Exception e) {
+                    System.out.println("Error: Argument isn't a digit");
+                    return 1;
+                }
+                ChessGame.TeamColor color;
+                try {
+                    color = ChessGame.TeamColor.valueOf(inputs[2]);
+                } catch (Exception e) {
+                    System.out.println("Error: Color must be WHITE or BLACK");
+                    return 1;
+                }
+                try {
+                    client.join(game_number, color);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+                // WHEN ENABLING GAME UI, CHANGE TO 2
+                return 1;
             default:
-                System.out.println("Invalid command :(. Type 'help' for list of valid commands");
+                System.out.println("Error: Invalid command. Type 'help' for list of valid commands");
                 return 1;
         }
     }
@@ -62,6 +88,7 @@ public class PostUI {
     public void help() {
         System.out.println("'logout' to log out of your account");
         System.out.println("'create <name>' to create a game with name");
+        System.out.println("'list' to list all games on server");
         System.out.println("'help' to print this help message");
     }
 }

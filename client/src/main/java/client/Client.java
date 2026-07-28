@@ -1,7 +1,7 @@
 package client;
 
+import chess.ChessGame;
 import model.GameData;
-import server.Server;
 import server.result.ListResult;
 import server.result.LoginResult;
 import server.result.RegisterResult;
@@ -18,10 +18,6 @@ public class Client {
 
     public Client() {
         serverFacade = new ServerFacade("localhost", 8080);
-    }
-
-    public String eval(String request) {
-        return request;
     }
 
     public void login(String username, String password) throws Exception {
@@ -71,5 +67,14 @@ public class Client {
             System.out.print(" | BLACK - ");
             System.out.println(games.get(i).blackUsername());
         }
+    }
+
+    public void join(int game_number, ChessGame.TeamColor color) throws Exception {
+        System.out.println("Trying join");
+        if ((game_number < 0) || (game_number >= games.size())) {
+            throw new Exception("Error: game number doesn't correspond to a game");
+        }
+        int gameID = games.get(game_number).gameID();
+        serverFacade.joinGame(color, gameID, authToken);
     }
 }

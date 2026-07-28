@@ -25,7 +25,7 @@ public class PreUI {
                 return -1;
             case "login":
                 if (incorrectArgCount(3, inputs.length)) {
-                    System.out.println("Wrong number of arguments");
+                    System.out.println("Error: Wrong number of arguments");
                     return 0;
                 }
                 try {
@@ -37,7 +37,7 @@ public class PreUI {
                 return 1;
             case "register":
                 if (incorrectArgCount(4, inputs.length)) {
-                    System.out.println("Wrong number of arguments");
+                    System.out.println("Error: Wrong number of arguments");
                     return 0;
                 }
                 try {
@@ -51,7 +51,7 @@ public class PreUI {
                 help();
                 return 0;
             default:
-                System.out.println("Invalid command :(. Type 'help' for list of valid commands");
+                System.out.println("Error: Invalid command. Type 'help' for list of valid commands");
                 return 0;
         }
     }

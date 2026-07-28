@@ -137,7 +137,7 @@ public class ServerFacade {
             System.out.println(httpResponse.body());
         } else {
             System.out.println(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
-            throw new Exception("Join game failed");
+            throw new Exception(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
         }
     }
 
