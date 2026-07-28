@@ -48,4 +48,10 @@ public class Client {
         serverFacade.logout(authToken);
         authToken = "";
     }
+
+    public void create(String gameName) throws Exception {
+        System.out.println("Trying create");
+        serverFacade.createGame(gameName, authToken);
+        System.out.println("Create succeeded! Try listing games to see it!");
+    }
 }

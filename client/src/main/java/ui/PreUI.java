@@ -11,6 +11,10 @@ public class PreUI {
         this.client = client;
     }
 
+    private boolean checkArgCount(int expected, int got) {
+        return expected == got;
+    }
+
     public void prompt() {
         System.out.print("Logged out >>> ");
     }
@@ -25,6 +29,10 @@ public class PreUI {
                 return -1;
             case "login":
                 System.out.println("Running login");
+                if (!checkArgCount(3, inputs.length)) {
+                    System.out.println("Wrong number of arguments");
+                    return 0;
+                }
                 try {
                     client.login(inputs[1], inputs[2]);
                 } catch (Exception e) {
@@ -34,6 +42,10 @@ public class PreUI {
                 return 1;
             case "register":
                 System.out.println("Running register");
+                if (!checkArgCount(4, inputs.length)) {
+                    System.out.println("Wrong number of arguments");
+                    return 0;
+                }
                 try {
                     client.register(inputs[1], inputs[2], inputs[3]);
                 } catch (Exception e) {
