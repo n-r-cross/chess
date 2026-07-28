@@ -3,6 +3,7 @@ package client;
 import dataaccess.DataAccessException;
 import org.junit.jupiter.api.*;
 import server.Server;
+import server.request.LogoutRequest;
 import server.result.LoginResult;
 import service.ClearService;
 
@@ -54,12 +55,19 @@ public class ServerFacadeTests {
 
     @Test
     public void logoutFail() {
-        // TODO: log out test
+        Assertions.assertThrows(Exception.class, () -> serverFacade.logout("fake-auth-token"));
     }
 
     @Test
     public void logoutSuccess() {
-        // TODO: log out test
+        String token = "";
+        try {
+            token = serverFacade.register("ga", "ga", "ga").authToken();
+        } catch (Exception e) {
+            fail();
+        }
+        String tokenFinal = token;
+        Assertions.assertDoesNotThrow(() -> serverFacade.logout(tokenFinal));
     }
 
 

@@ -36,7 +36,6 @@ public class ServerFacade {
 
         HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-            System.out.println(httpResponse.body());
             return httpResponse.body();
         } else {
             System.out.println(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
@@ -45,7 +44,6 @@ public class ServerFacade {
     }
 
     public LoginResult login(String username, String password) throws Exception {
-
         LoginRequest body = new LoginRequest(username, password);
         String bodyString = gson.toJson(body);
         String response = post("/session", bodyString);
@@ -57,27 +55,32 @@ public class ServerFacade {
     }
 
     public RegisterResult register(String username, String password, String email) throws Exception {
-        String urlString = String.format(Locale.getDefault(), "http://%s:%d%s", serverUrl, port, "/user");
-
         RegisterRequest body = new RegisterRequest(username, password, email);
-        String bodyString = new Gson().toJson(body);
+        String bodyString = gson.toJson(body);
+        String response = post("/user", bodyString);
+        if (response == null) {
+            return null;
+        }
+        return gson.fromJson(response, RegisterResult.class);
+    }
+
+    public void logout(String authToken) throws Exception {
+        String urlString = String.format(Locale.getDefault(), "http://%s:%d%s", serverUrl, port, "/session");
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
                 .timeout(java.time.Duration.ofMillis(5000))
-                .POST(HttpRequest.BodyPublishers.ofString(bodyString))
+                .header("Authorization", authToken)
+                .DELETE()
                 .build();
 
         HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-            return gson.fromJson(httpResponse.body(), RegisterResult.class);
+            System.out.println(httpResponse.body());
         } else {
             System.out.println(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
-            return null;
+            throw new Exception("Logout failed");
         }
-    }
-
-    public void logout(String authToken) {
     }
 
 }
