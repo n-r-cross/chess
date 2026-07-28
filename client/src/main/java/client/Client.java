@@ -1,15 +1,20 @@
 package client;
 
+import model.GameData;
 import server.Server;
+import server.result.ListResult;
 import server.result.LoginResult;
 import server.result.RegisterResult;
 
+import java.util.List;
+
 public class Client {
 
-    private static Server server;
     private static ServerFacade serverFacade;
 
     private String authToken = "";
+
+    private List<GameData> games;
 
     public Client() {
         serverFacade = new ServerFacade("localhost", 8080);
@@ -20,9 +25,8 @@ public class Client {
     }
 
     public void login(String username, String password) throws Exception {
-        LoginResult lr = null;
         System.out.println("Trying login");
-        lr = serverFacade.login(username, password);
+        LoginResult lr = serverFacade.login(username, password);
         if ((lr == null) || (lr.authToken() == null)) {
             System.out.println("Login failed :(");
             return;
@@ -35,9 +39,8 @@ public class Client {
     }
 
     public void register(String username, String password, String email) throws Exception {
-        RegisterResult rr = null;
         System.out.println("Trying register");
-        rr = serverFacade.register(username, password, email);
+        RegisterResult rr = serverFacade.register(username, password, email);
         authToken = rr.authToken();
         // TODO: remove authToken debug print
         System.out.println(authToken);
@@ -53,5 +56,20 @@ public class Client {
         System.out.println("Trying create");
         serverFacade.createGame(gameName, authToken);
         System.out.println("Create succeeded! Try listing games to see it!");
+    }
+
+    public void list() throws Exception {
+        System.out.println("Trying list");
+        ListResult lr = serverFacade.listGames(authToken);
+        games = lr.games();
+        for (int i = 0; i < games.size(); i++) {
+            System.out.print(i + 1);
+            System.out.print(") ");
+            System.out.print(games.get(i).gameName());
+            System.out.print(": WHITE - ");
+            System.out.print(games.get(i).whiteUsername());
+            System.out.print(" | BLACK - ");
+            System.out.println(games.get(i).blackUsername());
+        }
     }
 }

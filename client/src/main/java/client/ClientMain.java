@@ -8,17 +8,14 @@ import ui.PreUI;
 import java.util.Scanner;
 
 public class ClientMain {
-    private static PreUI preUI;
-    private static PostUI postUI;
-    private static GameUI gameUI;
 
     public static void main(String[] args) {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         System.out.println("♕ 240 Chess Client: " + piece);
         Client client = new Client();
-        preUI = new PreUI(client);
-        postUI = new PostUI(client);
-        gameUI = new GameUI(client);
+        PreUI preUI = new PreUI(client);
+        PostUI postUI = new PostUI(client);
+        GameUI gameUI = new GameUI(client);
 
         preUI.help();
 

@@ -45,6 +45,14 @@ public class PostUI {
                     System.out.println(e.getMessage());
                 }
                 return 1;
+            case "list":
+                try {
+                    System.out.println("Trying to list games");
+                    client.list();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+                return 1;
             default:
                 System.out.println("Invalid command :(. Type 'help' for list of valid commands");
                 return 1;
@@ -52,7 +60,8 @@ public class PostUI {
     }
 
     public void help() {
-        System.out.println("\'logout\' to log out of your account");
-        System.out.println("\'help\' to print this help message");
+        System.out.println("'logout' to log out of your account");
+        System.out.println("'create <name>' to create a game with name");
+        System.out.println("'help' to print this help message");
     }
 }

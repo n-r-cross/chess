@@ -15,7 +15,7 @@ public class GameUI {
     }
 
     public int run(String input) {
-        System.out.println("\'" + input + "\'");
+        System.out.println("'" + input + "'");
         return 0;
     }
 }
