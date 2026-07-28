@@ -28,7 +28,7 @@ public class PreUI {
                 try {
                     client.login(inputs[1], inputs[2]);
                 } catch (Exception e) {
-                    System.out.println("Command failed. (did you include username and password?)");
+                    System.out.println(e.getMessage());
                     return 0;
                 }
                 return 1;

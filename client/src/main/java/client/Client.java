@@ -19,15 +19,10 @@ public class Client {
         return request;
     }
 
-    public void login(String username, String password) {
-        //new ClientMain().get("localhost", 8080, "/name");
+    public void login(String username, String password) throws Exception {
         LoginResult lr = null;
-        try {
-            System.out.println("Trying login");
-            lr = serverFacade.login(username, password);
-        } catch (Exception e) {
-            System.out.println(lr);
-        }
+        System.out.println("Trying login");
+        lr = serverFacade.login(username, password);
         if ((lr == null) || (lr.authToken() == null)) {
             System.out.println("Login failed :(");
             return;
@@ -46,6 +41,11 @@ public class Client {
         authToken = rr.authToken();
         // TODO: remove authToken debug print
         System.out.println(authToken);
+    }
 
+    public void logout() throws Exception {
+        System.out.println("Trying logout");
+        serverFacade.logout(authToken);
+        authToken = "";
     }
 }
