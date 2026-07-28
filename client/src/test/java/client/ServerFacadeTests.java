@@ -9,6 +9,8 @@ import server.result.ListResult;
 import server.result.LoginResult;
 import service.ClearService;
 
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
@@ -134,10 +136,6 @@ public class ServerFacadeTests {
         String token = "";
         try {
             token = serverFacade.register("ga", "ga", "ga").authToken();
-        } catch (Exception e) {
-            fail();
-        }
-        try {
             Assertions.assertEquals(ListResult.class, serverFacade.listGames(token).getClass());
             serverFacade.createGame("light_cycles", token);
             Assertions.assertEquals(ListResult.class, serverFacade.listGames(token).getClass());
@@ -155,10 +153,39 @@ public class ServerFacadeTests {
 
     @Test
     public void joinGameSuccess() {
+        String token = "";
+        int id = -1;
+        try {
+            token = serverFacade.register("ga", "ga", "ga").authToken();
+            id = serverFacade.createGame("light_cycles", token).gameID();
+            serverFacade.joinGame(WHITE, id, token);
+            serverFacade.joinGame(BLACK, id, token);
+            GameData data = serverFacade.listGames(token).games().getFirst();
+            Assertions.assertEquals(new GameData(1, "ga", "ga", "light_cycles", new ChessGame()), data);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test
     public void joinGameFail() {
+        String token = "";
+        int id = -1;
+        try {
+            token = serverFacade.register("ga", "ga", "ga").authToken();
+            id = serverFacade.createGame("light_cycles", token).gameID();
+        } catch (Exception e) {
+            fail();
+        }
+        int finalId = id;
+        Assertions.assertThrows(Exception.class, () -> serverFacade.joinGame(WHITE, finalId, "fake-auth"));
+        Assertions.assertThrows(Exception.class, () -> serverFacade.joinGame(BLACK, finalId, "fake-auth"));
+        try {
+            GameData data = serverFacade.listGames(token).games().getFirst();
+            Assertions.assertEquals(new GameData(1, null, null, "light_cycles", new ChessGame()), data);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
 }
