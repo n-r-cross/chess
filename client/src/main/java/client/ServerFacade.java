@@ -15,9 +15,8 @@ import java.util.Locale;
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
+    private final Gson gson = new Gson();
     private final int port;
-
-    private String authToken = "";
 
     public ServerFacade(String url, int port) {
         System.out.println("Init ServerFacade");
@@ -26,18 +25,9 @@ public class ServerFacade {
         this.port = port;
     }
 
-    public boolean loggedIn() {
-        return authToken.isEmpty();
-    }
+    private String post(String path, String bodyString) throws Exception {
+        String urlString = String.format(Locale.getDefault(), "http://%s:%d%s", serverUrl, port, path);
 
-    public LoginResult login(String username, String password) throws Exception {
-        System.out.println("Running login in Server Facade");
-        String urlString = String.format(Locale.getDefault(), "http://%s:%d%s", serverUrl, port, "/session");
-
-        LoginRequest body = new LoginRequest(username, password);
-        String bodyString = new Gson().toJson(body);
-
-        System.out.println("Building request");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
                 .timeout(java.time.Duration.ofMillis(5000))
@@ -45,25 +35,33 @@ public class ServerFacade {
                 .build();
 
         HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println("Ran request");
-        System.out.println(httpResponse.body());
         if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
             System.out.println(httpResponse.body());
+            return httpResponse.body();
         } else {
-            System.out.println("Error: received status code " + httpResponse.statusCode());
+            System.out.println(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
+            return null;
         }
-        // TODO: save authToken
-        return new LoginResult("ga", "ga");
+    }
+
+    public LoginResult login(String username, String password) throws Exception {
+
+        LoginRequest body = new LoginRequest(username, password);
+        String bodyString = gson.toJson(body);
+        String response = post("/session", bodyString);
+        if (response == null) {
+            return null;
+        }
+        return gson.fromJson(response, LoginResult.class);
+
     }
 
     public RegisterResult register(String username, String password, String email) throws Exception {
-        System.out.println("Running register in Server Facade");
         String urlString = String.format(Locale.getDefault(), "http://%s:%d%s", serverUrl, port, "/user");
 
         RegisterRequest body = new RegisterRequest(username, password, email);
         String bodyString = new Gson().toJson(body);
 
-        System.out.println("Building request");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
                 .timeout(java.time.Duration.ofMillis(5000))
@@ -71,15 +69,15 @@ public class ServerFacade {
                 .build();
 
         HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println("Ran request");
-        System.out.println(httpResponse.body());
         if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-            System.out.println(httpResponse.body());
+            return gson.fromJson(httpResponse.body(), RegisterResult.class);
         } else {
-            System.out.println("Error: received status code " + httpResponse.statusCode());
+            System.out.println(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
+            return null;
         }
-        // TODO: save authToken
-        return new RegisterResult("ga", "ga");
+    }
+
+    public void logout(String authToken) {
     }
 
 }
