@@ -44,7 +44,7 @@ public class ServerFacade {
             return httpResponse.body();
         } else {
             System.out.println(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
-            return null;
+            throw new Exception(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
         }
     }
 
@@ -52,9 +52,6 @@ public class ServerFacade {
         LoginRequest body = new LoginRequest(username, password);
         String bodyString = gson.toJson(body);
         String response = post("/session", bodyString);
-        if (response == null) {
-            return null;
-        }
         return gson.fromJson(response, LoginResult.class);
 
     }
@@ -63,9 +60,6 @@ public class ServerFacade {
         RegisterRequest body = new RegisterRequest(username, password, email);
         String bodyString = gson.toJson(body);
         String response = post("/user", bodyString);
-        if (response == null) {
-            return null;
-        }
         return gson.fromJson(response, RegisterResult.class);
     }
 

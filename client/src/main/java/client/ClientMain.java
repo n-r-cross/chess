@@ -20,8 +20,6 @@ public class ClientMain {
         postUI = new PostUI(client);
         gameUI = new GameUI(client);
 
-        System.out.print("help()");
-
         Scanner scanner = new Scanner(System.in);
         var result = "";
 

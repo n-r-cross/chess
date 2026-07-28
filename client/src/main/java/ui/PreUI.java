@@ -34,6 +34,12 @@ public class PreUI {
                 return 1;
             case "register":
                 System.out.println("Running register");
+                try {
+                    client.register(inputs[1], inputs[2], inputs[3]);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    return 0;
+                }
                 return 1;
             case "help":
                 System.out.println("Running help");

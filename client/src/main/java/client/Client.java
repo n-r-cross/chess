@@ -39,13 +39,13 @@ public class Client {
         // preUI.run();
     }
 
-    public void register() {
+    public void register(String username, String password, String email) throws Exception {
         RegisterResult rr = null;
-        try {
-            System.out.println("Trying register");
-            rr = serverFacade.register("ga", "ga", "ga");
-        } catch (Exception e) {
-            System.out.println(rr);
-        }
+        System.out.println("Trying register");
+        rr = serverFacade.register(username, password, email);
+        authToken = rr.authToken();
+        // TODO: remove authToken debug print
+        System.out.println(authToken);
+
     }
 }
