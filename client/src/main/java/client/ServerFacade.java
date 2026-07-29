@@ -2,14 +2,14 @@ package client;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import server.request.CreateRequest;
-import server.request.JoinRequest;
-import server.request.LoginRequest;
-import server.request.RegisterRequest;
-import server.result.CreateResult;
-import server.result.ListResult;
-import server.result.LoginResult;
-import server.result.RegisterResult;
+import request.CreateRequest;
+import request.JoinRequest;
+import request.LoginRequest;
+import request.RegisterRequest;
+import result.CreateResult;
+import result.ListResult;
+import result.LoginResult;
+import result.RegisterResult;
 
 import java.net.URI;
 import java.net.http.HttpClient;

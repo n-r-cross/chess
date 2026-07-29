@@ -3,7 +3,7 @@ package server;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
-import server.request.LogoutRequest;
+import request.LogoutRequest;
 import service.BadRequestException;
 import service.UserService;
 

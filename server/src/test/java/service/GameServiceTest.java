@@ -4,9 +4,11 @@ import chess.ChessGame;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import server.request.*;
-import server.result.CreateResult;
-import server.result.RegisterResult;
+import request.CreateRequest;
+import request.JoinRequest;
+import request.RegisterRequest;
+import result.CreateResult;
+import result.RegisterResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +61,7 @@ class GameServiceTest {
         }
         try {
             result = userService.register(new RegisterRequest("ga", "ga", "ga"));
-            userService.logout(new LogoutRequest(result.authToken()));
+            userService.logout(new request.LogoutRequest(result.authToken()));
         } catch (Exception e) {
             fail();
         }

@@ -4,9 +4,9 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import model.GameData;
-import server.result.ListResult;
-import server.result.LoginResult;
-import server.result.RegisterResult;
+import result.ListResult;
+import result.LoginResult;
+import result.RegisterResult;
 
 import java.util.List;
 

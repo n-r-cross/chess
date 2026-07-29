@@ -2,10 +2,10 @@ package service;
 
 import chess.ChessGame;
 import model.GameData;
-import server.request.CreateRequest;
-import server.request.JoinRequest;
-import server.result.CreateResult;
-import server.result.ListResult;
+import request.CreateRequest;
+import request.JoinRequest;
+import result.CreateResult;
+import result.ListResult;
 
 public class GameService extends Service {
 

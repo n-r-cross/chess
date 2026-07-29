@@ -5,11 +5,11 @@ import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
-import server.request.LoginRequest;
-import server.request.LogoutRequest;
-import server.request.RegisterRequest;
-import server.result.LoginResult;
-import server.result.RegisterResult;
+import request.LoginRequest;
+import request.LogoutRequest;
+import request.RegisterRequest;
+import result.LoginResult;
+import result.RegisterResult;
 
 import java.util.UUID;
 

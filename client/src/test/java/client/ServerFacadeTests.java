@@ -5,8 +5,8 @@ import dataaccess.DataAccessException;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
-import server.result.ListResult;
-import server.result.LoginResult;
+import result.ListResult;
+import result.LoginResult;
 import service.ClearService;
 
 import static chess.ChessGame.TeamColor.BLACK;
@@ -133,7 +133,7 @@ public class ServerFacadeTests {
 
     @Test
     public void listGamesSuccess() {
-        String token = "";
+        String token;
         try {
             token = serverFacade.register("ga", "ga", "ga").authToken();
             Assertions.assertEquals(ListResult.class, serverFacade.listGames(token).getClass());
@@ -153,8 +153,8 @@ public class ServerFacadeTests {
 
     @Test
     public void joinGameSuccess() {
-        String token = "";
-        int id = -1;
+        String token;
+        int id;
         try {
             token = serverFacade.register("ga", "ga", "ga").authToken();
             id = serverFacade.createGame("light_cycles", token).gameID();

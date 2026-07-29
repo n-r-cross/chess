@@ -1,4 +1,4 @@
-package server.request;
+package request;
 
 public record LogoutRequest(String authToken) {
     public boolean complete() {

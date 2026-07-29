@@ -1,4 +1,4 @@
-package server.request;
+package request;
 
 public record CreateRequest(String gameName) {
     public boolean complete() {
