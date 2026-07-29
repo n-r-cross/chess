@@ -22,9 +22,8 @@ public class PostUI {
     }
 
     public int run(String input) {
-        System.out.println("'" + input + "'");
         var inputs = input.split(" ");
-
+        int game_number;
         switch (inputs[0]) {
             case "logout":
                 try {
@@ -60,7 +59,6 @@ public class PostUI {
                     System.out.println(SET_TEXT_COLOR_RED + "Error: Wrong number of arguments");
                     return 1;
                 }
-                int game_number;
                 try {
                     game_number = Integer.parseInt(inputs[1]) - 1;
                 } catch (Exception e) {
@@ -81,6 +79,24 @@ public class PostUI {
                 }
                 // WHEN ENABLING GAME UI, CHANGE TO 2
                 return 1;
+            case "observe":
+                if (incorrectArgCount(2, inputs.length)) {
+                    System.out.println(SET_TEXT_COLOR_RED + "Error: Wrong number of arguments");
+                    return 1;
+                }
+                try {
+                    game_number = Integer.parseInt(inputs[1]) - 1;
+                } catch (Exception e) {
+                    System.out.println(SET_TEXT_COLOR_RED + "Error: Argument isn't a digit");
+                    return 1;
+                }
+                try {
+                    client.observe(game_number);
+                } catch (Exception e) {
+                    System.out.println(SET_TEXT_COLOR_RED + e.getMessage());
+                }
+                // WHEN ENABLING GAME UI, CHANGE TO 2
+                return 1;
             default:
                 System.out.println(SET_TEXT_COLOR_RED + "Error: Invalid command. Type 'help' for list of valid commands");
                 return 1;
@@ -91,6 +107,7 @@ public class PostUI {
         System.out.println("'logout' to log out of your account");
         System.out.println("'create <name>' to create a game with name");
         System.out.println("'join <ID> [WHITE|BLACK]' to join a game");
+        System.out.println("'observe <ID>' to observe a game");
         System.out.println("'list' to list all games on server");
         System.out.println("'help' to print this help message");
     }
