@@ -62,20 +62,20 @@ public class Client {
         }
     }
 
-    public void join(int game_number, ChessGame.TeamColor color) throws Exception {
-        if ((game_number < 0) || (game_number >= games.size())) {
+    public void join(int gameNumber, ChessGame.TeamColor color) throws Exception {
+        if ((gameNumber < 0) || (gameNumber >= games.size())) {
             throw new Exception("Error: game number doesn't correspond to a game");
         }
-        int gameID = games.get(game_number).gameID();
+        int gameID = games.get(gameNumber).gameID();
         serverFacade.joinGame(color, gameID, authToken);
-        printGame(game_number, color);
+        printGame(gameNumber, color);
     }
 
-    public void observe(int game_number) throws Exception {
-        if ((game_number < 0) || (game_number >= games.size())) {
+    public void observe(int gameNumber) throws Exception {
+        if ((gameNumber < 0) || (gameNumber >= games.size())) {
             throw new Exception("Error: game number doesn't correspond to a game");
         }
-        printGame(game_number, ChessGame.TeamColor.WHITE);
+        printGame(gameNumber, ChessGame.TeamColor.WHITE);
     }
 
     private String getCharForPiece(ChessPiece piece) {
@@ -129,8 +129,8 @@ public class Client {
         System.out.println(RESET_BG_COLOR);
     }
 
-    private void printGame(int game_number, ChessGame.TeamColor color) {
-        ChessGame game = games.get(game_number).game();
+    private void printGame(int gameNumber, ChessGame.TeamColor color) {
+        ChessGame game = games.get(gameNumber).game();
         ChessBoard board = game.getBoard();
         String triple_thin = THIN + THIN + THIN;
         System.out.print(ERASE_SCREEN);

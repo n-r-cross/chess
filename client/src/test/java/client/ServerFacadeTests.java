@@ -18,7 +18,7 @@ public class ServerFacadeTests {
 
     private static Server server;
     private static ServerFacade serverFacade;
-    private static final ClearService clearService = new ClearService();
+    private static final ClearService CLEAR_SERVICE = new ClearService();
 
     @BeforeAll
     public static void init() {
@@ -36,7 +36,7 @@ public class ServerFacadeTests {
     @BeforeEach
     void clear() {
         try {
-            clearService.clear();
+            CLEAR_SERVICE.clear();
         } catch (DataAccessException e) {
             fail();
         }
