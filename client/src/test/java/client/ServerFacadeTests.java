@@ -44,11 +44,7 @@ public class ServerFacadeTests {
 
     @Test
     public void registerFail() {
-        try {
-            Assertions.assertNull(serverFacade.register(null, "ga", "ga"));
-        } catch (Exception e) {
-            fail();
-        }
+        Assertions.assertThrows(Exception.class, () -> serverFacade.register(null, "ga", "ga"));
     }
 
     @Test
@@ -77,11 +73,7 @@ public class ServerFacadeTests {
 
     @Test
     public void loginFail() {
-        try {
-            serverFacade.login("ga", "ga");
-        } catch (Exception e) {
-            fail();
-        }
+        Assertions.assertThrows(Exception.class, () -> serverFacade.login("ga", "ga"));
     }
 
     @Test
