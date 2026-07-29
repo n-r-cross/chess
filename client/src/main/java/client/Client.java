@@ -140,15 +140,15 @@ public class Client {
         int finish = 8;
         int change = 1;
         if (reversed) {
-            start = 8;
-            finish = 0;
+            start = 7;
+            finish = -1;
             change = -1;
         }
         for (int i = start; i != finish; i += change) {
             System.out.print(SET_BG_COLOR_BLACK + triple_thin + (8 - i) + triple_thin);
-            for (int j = 7; j >= 0; j--) {
+            for (int j = start; j != finish; j += change) {
                 String format = "";
-                if (((i + j) % 2) == 1) {
+                if (((i + j) % 2) == 0) {
                     format += SET_BG_COLOR_LIGHT_GREY;
                 } else {
                     format += SET_BG_COLOR_DARK_GREY;

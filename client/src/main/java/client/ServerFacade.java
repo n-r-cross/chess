@@ -24,7 +24,6 @@ public class ServerFacade {
     private final int port;
 
     public ServerFacade(String url, int port) {
-        System.out.println("Init ServerFacade");
         // Set up url to send http requests to
         serverUrl = url;
         this.port = port;
@@ -134,7 +133,7 @@ public class ServerFacade {
 
         HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-            System.out.println(httpResponse.body());
+            return;
         } else {
             System.out.println(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
             throw new Exception(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
