@@ -95,7 +95,6 @@ public class ServerFacade {
         if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
             return gson.fromJson(httpResponse.body(), CreateResult.class);
         } else {
-            System.out.println(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
             throw new Exception("Create game failed");
         }
     }
@@ -114,7 +113,6 @@ public class ServerFacade {
         if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
             return gson.fromJson(httpResponse.body(), ListResult.class);
         } else {
-            System.out.println(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
             throw new Exception("List games failed");
         }
     }
@@ -135,7 +133,6 @@ public class ServerFacade {
         if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
             return;
         } else {
-            System.out.println(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
             throw new Exception(gson.fromJson(httpResponse.body(), ErrorResult.class).message());
         }
     }

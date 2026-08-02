@@ -136,26 +136,32 @@ public class Client {
         System.out.print(ERASE_SCREEN);
         boolean reversed = color != ChessGame.TeamColor.WHITE;
         printHorizontalIndex(reversed);
-        int start = 0;
-        int finish = 8;
-        int change = 1;
+        int row_start = 7;
+        int row_finish = -1;
+        int row_change = -1;
+        int col_start = 0;
+        int col_finish = 8;
+        int col_change = 1;
         if (reversed) {
-            start = 7;
-            finish = -1;
-            change = -1;
+            row_start = 0;
+            row_finish = 8;
+            row_change = 1;
+            col_start = 7;
+            col_finish = -1;
+            col_change = -1;
         }
-        for (int i = start; i != finish; i += change) {
-            System.out.print(SET_BG_COLOR_BLACK + triple_thin + (8 - i) + triple_thin);
-            for (int j = start; j != finish; j += change) {
+        for (int i = row_start; i != row_finish; i += row_change) {
+            System.out.print(SET_BG_COLOR_BLACK + triple_thin + (1 + i) + triple_thin);
+            for (int j = col_start; j != col_finish; j += col_change) {
                 String format = "";
-                if (((i + j) % 2) == 0) {
+                if (((i + j) % 2) == 1) {
                     format += SET_BG_COLOR_LIGHT_GREY;
                 } else {
                     format += SET_BG_COLOR_DARK_GREY;
                 }
                 System.out.print(format + THIN + THIN + getCharForPiece(board.getPiece(i, j)) + THIN + THIN);
             }
-            System.out.print(SET_BG_COLOR_BLACK + triple_thin + (8 - i) + triple_thin);
+            System.out.print(SET_BG_COLOR_BLACK + triple_thin + (1 + i) + triple_thin);
             System.out.println(RESET_BG_COLOR);
         }
         printHorizontalIndex(reversed);

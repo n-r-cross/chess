@@ -33,7 +33,7 @@ public class PreUI {
                 try {
                     client.login(inputs[1], inputs[2]);
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    System.out.println(SET_TEXT_COLOR_RED + e.getMessage());
                     return 0;
                 }
                 return 1;
@@ -45,7 +45,7 @@ public class PreUI {
                 try {
                     client.register(inputs[1], inputs[2], inputs[3]);
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    System.out.println(SET_TEXT_COLOR_RED + e.getMessage());
                     return 0;
                 }
                 return 1;
