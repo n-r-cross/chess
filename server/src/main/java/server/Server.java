@@ -31,6 +31,14 @@ public class Server {
         javalin.post("/game", createHandler);
         JoinHandler joinHandler = new JoinHandler();
         javalin.put("/game", joinHandler);
+        // Register WebSocket endpoint
+        WebSocketHandler webSocketHandler = new WebSocketHandler();
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
+
         // Register exceptions
         javalin.exception(Exception.class, this::exceptionHandler);
         javalin.exception(UnauthorizedException.class, this::unauthorizedExceptionHandler);
