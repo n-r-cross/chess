@@ -72,9 +72,9 @@ public class GameService extends Service {
         String username = Service.authData.getAuth(authToken).username();
         // Update game to have player join game
         if (r.playerColor() == ChessGame.TeamColor.BLACK) {
-            gameData.updateGame(new GameData(g.gameID(), g.whiteUsername(), username, g.gameName(), g.game()));
+            gameData.updateGame(new GameData(g.gameID(), g.whiteUsername(), username, g.gameName(), g.game(), g.complete()));
         } else {
-            gameData.updateGame(new GameData(g.gameID(), username, g.blackUsername(), g.gameName(), g.game()));
+            gameData.updateGame(new GameData(g.gameID(), username, g.blackUsername(), g.gameName(), g.game(), g.complete()));
         }
 
     }

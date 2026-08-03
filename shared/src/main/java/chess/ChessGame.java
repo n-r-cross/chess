@@ -405,12 +405,12 @@ public class ChessGame {
 
     /**
      * Determines if the given team would be in check
-     * if a given move were completed
+     * if a given move were complete
      *
      * @param teamColor which team to check for check
      * @param testMove  which move to check for check
      * @return True if the specified team would be in
-     * check if move were completed (and move is invalid)
+     * check if move were complete (and move is invalid)
      */
     private boolean testNotInCheck(TeamColor teamColor, ChessMove testMove) {
         TeamColor oppColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;

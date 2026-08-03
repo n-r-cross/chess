@@ -68,6 +68,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return msg;
     }
 
+    private String getStatusNotification(GameData data) throws Exception {
+        return null;
+    }
+
     @Override
     public void handleMessage(@NotNull WsMessageContext context) throws Exception {
         UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
@@ -152,13 +156,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 // Remove current session for move made broadcast
                 connections.remove(context.session);
                 // Broadcast move made
-                String message = getMoveNotification(username, gameData.gameID(), moveCommand.getMove());
-                NotificationServerMessage notificationServerMessage = new NotificationServerMessage(message);
+                String moveMessage = getMoveNotification(username, gameData.gameID(), moveCommand.getMove());
+                // Check status of game
+                String statusMessage = getStatusNotification(gameData);
+                NotificationServerMessage notificationServerMessage = new NotificationServerMessage(moveMessage);
                 connections.broadcast(gameData.gameID(), notificationServerMessage);
+                if (statusMessage != null) {
+                    notificationServerMessage = new NotificationServerMessage(statusMessage);
+                    connections.broadcast(gameData.gameID(), notificationServerMessage);
+                }
                 // Add current session back in for future broadcasts
                 connections.add(command.getGameID(), context.session);
 
-                // TODO: check for check, checkmate, and stalemate
 
             }
             case LEAVE -> {
@@ -191,7 +200,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 if (username.equals(game.whiteUsername())) {
                     whiteUsername = null;
                 }
-                GameData new_game = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
+                GameData new_game = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game(), game.complete());
                 // Generate left notification before removing username
                 String msg = getLeftNotification(username, command.getGameID());
                 // Update game

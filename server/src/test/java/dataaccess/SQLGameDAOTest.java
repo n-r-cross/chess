@@ -64,7 +64,7 @@ class SQLGameDAOTest {
             fail();
         }
         ChessGame game = new ChessGame();
-        assertEquals(gd, new GameData(1, null, null, "new_game", game));
+        assertEquals(gd, new GameData(1, null, null, "new_game", game, false));
     }
 
     @Test
@@ -85,7 +85,7 @@ class SQLGameDAOTest {
             fail();
         }
         ChessGame game = new ChessGame();
-        GameData game_1 = new GameData(1, null, null, "game_1", game);
+        GameData game_1 = new GameData(1, null, null, "game_1", game, false);
         List<GameData> list = new ArrayList<>();
         list.add(game_1);
         try {
@@ -99,7 +99,7 @@ class SQLGameDAOTest {
         } catch (Exception e) {
             fail();
         }
-        GameData game_2 = new GameData(2, null, null, "game_2", game);
+        GameData game_2 = new GameData(2, null, null, "game_2", game, false);
         list.add(game_2);
         try {
             assertEquals(list, gameDAO.listGames());
@@ -137,7 +137,7 @@ class SQLGameDAOTest {
             fail();
         }
         GameData altered = new GameData(game.gameID(), "Sir-Gasalot", "Sir-Asalot",
-                "new_game", chessGame);
+                "new_game", chessGame, false);
         Assertions.assertDoesNotThrow(() -> gameDAO.updateGame(altered));
         try {
             Assertions.assertEquals(altered, gameDAO.getGame(game.gameID()));
@@ -158,7 +158,7 @@ class SQLGameDAOTest {
             fail();
         }
         GameData altered = new GameData(game.gameID() + 1, "Sir-Gasalot", "Sir-Asalot",
-                "new_game", new ChessGame());
+                "new_game", new ChessGame(), false);
         Assertions.assertThrows(BadRequestException.class, () -> gameDAO.updateGame(altered));
     }
 

@@ -96,11 +96,11 @@ class GameServiceTest {
         } catch (Exception e) {
             fail();
         }
-        GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame());
+        GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame(), false);
         ArrayList<GameData> golden = new ArrayList<>();
         golden.add(game1);
         Assertions.assertEquals(golden, data);
-        GameData game2 = new GameData(2, null, null, "light_cycles", new ChessGame());
+        GameData game2 = new GameData(2, null, null, "light_cycles", new ChessGame(), false);
         golden.add(game2);
         try {
             gameService.create(new CreateRequest("light_cycles"));
@@ -128,7 +128,7 @@ class GameServiceTest {
         } catch (Exception e) {
             fail();
         }
-        GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame());
+        GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame(), false);
         ArrayList<GameData> golden = new ArrayList<>();
         golden.add(game1);
         Assertions.assertEquals(golden, data);
@@ -145,8 +145,8 @@ class GameServiceTest {
             fail();
         }
         List<GameData> data = null;
-        GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame());
-        GameData game2 = new GameData(2, null, null, "light_cycles", new ChessGame());
+        GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame(), false);
+        GameData game2 = new GameData(2, null, null, "light_cycles", new ChessGame(), false);
         ArrayList<GameData> golden = new ArrayList<>();
         golden.add(game1);
         golden.add(game2);
@@ -169,7 +169,7 @@ class GameServiceTest {
         } catch (Exception e) {
             fail();
         }
-        GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame());
+        GameData game1 = new GameData(1, null, null, "disc_wars", new ChessGame(), false);
         try {
             Assertions.assertEquals(game1, Service.gameData.getGame(1));
         } catch (Exception e) {

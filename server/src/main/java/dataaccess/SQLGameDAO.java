@@ -34,6 +34,7 @@ public class SQLGameDAO implements GameDAO {
                         blackUsername VARCHAR(255),
                         gameName VARCHAR(255) NOT NULL,
                         game longtext NOT NULL,
+                        complete BOOLEAN,
                         PRIMARY KEY (gameID)
                     )""";
             // Execute command to create users table
@@ -50,15 +51,20 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public int createGame(String gameName) throws Exception {
         try (var conn = getConnection()) {
+            System.out.println("Trying to create game");
             // Add game
-            String statement = "INSERT INTO games (gameName, game) VALUES (?, ?)";
+            String statement = "INSERT INTO games (gameName, game, complete) VALUES (?, ?, ?)";
             // Execute SQL statements on the connection here
+            System.out.println("About to prepare statement");
             try (var insertStatement = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
+                System.out.println("Prepared statement");
                 insertStatement.setString(1, gameName);
                 ChessGame game = new ChessGame();
                 String gameString = gson.toJson(game);
                 insertStatement.setString(2, gameString);
+                insertStatement.setBoolean(3, false);
                 insertStatement.executeUpdate();
+                System.out.println("Did update");
                 // Get gameID
                 var resultSet = insertStatement.getGeneratedKeys();
                 var id = 0;
@@ -76,7 +82,7 @@ public class SQLGameDAO implements GameDAO {
     public GameData getGame(int gameID) throws Exception {
         try (var conn = getConnection()) {
             // Get game from game ID
-            String command = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games WHERE gameID=?";
+            String command = "SELECT gameID, whiteUsername, blackUsername, gameName, game, complete FROM games WHERE gameID=?";
             try (var preparedStatement = conn.prepareStatement(command)) {
                 preparedStatement.setInt(1, gameID);
                 try (var rs = preparedStatement.executeQuery()) {
@@ -86,7 +92,8 @@ public class SQLGameDAO implements GameDAO {
                     }
                     ChessGame game = gson.fromJson(rs.getString("game"), ChessGame.class);
                     return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"),
-                            rs.getString("blackUsername"), rs.getString("gameName"), game);
+                            rs.getString("blackUsername"), rs.getString("gameName"),
+                            game, rs.getBoolean("complete"));
                 }
             }
         } catch (SQLException e) {
@@ -106,7 +113,8 @@ public class SQLGameDAO implements GameDAO {
                     while (rs.next()) {
                         ChessGame game = gson.fromJson(rs.getString("game"), ChessGame.class);
                         GameData gd = new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"),
-                                rs.getString("blackUsername"), rs.getString("gameName"), game);
+                                rs.getString("blackUsername"), rs.getString("gameName"),
+                                game, rs.getBoolean("complete"));
                         list.add(gd);
                     }
                 }
@@ -121,12 +129,13 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public void updateGame(GameData game) throws Exception {
         try (var conn = getConnection()) {
-            String updateString = "UPDATE games SET whiteUsername=?, blackUsername=?, game=? WHERE gameID=?";
+            String updateString = "UPDATE games SET whiteUsername=?, blackUsername=?, game=?, complete=? WHERE gameID=?";
             try (var preparedStatement = conn.prepareStatement(updateString)) {
                 preparedStatement.setString(1, game.whiteUsername());
                 preparedStatement.setString(2, game.blackUsername());
                 preparedStatement.setString(3, gson.toJson(game.game()));
-                preparedStatement.setInt(4, game.gameID());
+                preparedStatement.setBoolean(4, game.complete());
+                preparedStatement.setInt(5, game.gameID());
                 int effect = preparedStatement.executeUpdate();
                 if (effect == 0) {
                     throw new BadRequestException("bad request");
