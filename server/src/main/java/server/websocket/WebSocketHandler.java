@@ -14,7 +14,7 @@ import websocket.messages.*;
 import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
-    private static final ConnectionManager connections = new ConnectionManager();
+    private static final ConnectionManager CONNECTIONS = new ConnectionManager();
     private final PlayService playService = new PlayService();
     private static final Gson GSON = new Gson();
 
@@ -24,12 +24,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Connected to game");
     }
 
-    private String getJoinNotification(String username, int gameID) throws Exception {
+    private String getJoinNotification(String username, GameData gameData) {
         ChessGame.TeamColor color = null;
-        if (Objects.equals(playService.getGame(gameID).whiteUsername(), username)) {
+        if (Objects.equals(gameData.whiteUsername(), username)) {
             color = ChessGame.TeamColor.WHITE;
         }
-        if (Objects.equals(playService.getGame(gameID).blackUsername(), username)) {
+        if (Objects.equals(gameData.blackUsername(), username)) {
             color = ChessGame.TeamColor.BLACK;
         }
         String msg = username + " has joined the game as ";
@@ -48,6 +48,23 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String msg = username + " (";
         msg += Objects.requireNonNullElse(color, "OBSERVER");
         msg += ") has left the game";
+        return msg;
+    }
+
+    private String getResignNotification(String username, int gameID) throws Exception {
+        ChessGame.TeamColor color = null;
+        if (Objects.equals(playService.getGame(gameID).whiteUsername(), username)) {
+            color = ChessGame.TeamColor.WHITE;
+        }
+        if (Objects.equals(playService.getGame(gameID).blackUsername(), username)) {
+            color = ChessGame.TeamColor.BLACK;
+        }
+        if (color == null) {
+            return null;
+        }
+        String msg = username + " (";
+        msg += color;
+        msg += ") has resigned";
         return msg;
     }
 
@@ -94,150 +111,206 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return ((data.game().isInCheckmate(color)) || (data.game().isInStalemate(color)));
     }
 
+    private void handleConnectMessage(@NotNull WsMessageContext context) throws Exception {
+        UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
+        GameData data;
+        String username;
+        // Try to get username from auth token
+        try {
+            username = playService.getAuth(command.getAuthToken()).username();
+        } catch (Exception e) {
+            // Invalid auth token
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        // Try to get game from game id
+        try {
+            data = playService.getGame(command.getGameID());
+        } catch (Exception e) {
+            // Invalid game id
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        ServerMessage serverMessage = new LoadGameMessage(data.game());
+        context.send(GSON.toJson(serverMessage));
+        // Send notification to concerned parties
+        String msg = getJoinNotification(username, data);
+        CONNECTIONS.broadcast(command.getGameID(), new NotificationServerMessage(msg));
+        // Add current session to concerned parties
+        CONNECTIONS.add(command.getGameID(), context.session);
+    }
+
+    private void handleMakeMoveMessage(@NotNull WsMessageContext context) throws Exception {
+        UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
+        MakeMoveCommand moveCommand = GSON.fromJson(context.message(), MakeMoveCommand.class);
+        GameData gameData;
+        String username;
+        // Try to get username from auth token
+        try {
+            username = playService.getAuth(command.getAuthToken()).username();
+        } catch (Exception e) {
+            // Invalid auth token
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        // Try to get game from game id
+        try {
+            gameData = playService.getGame(command.getGameID());
+        } catch (Exception e) {
+            // Invalid game id
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        // Check if your turn (prohibit observers and opponent from making move)
+        ChessGame.TeamColor color = null;
+        if (username.equals(gameData.blackUsername())) {
+            color = ChessGame.TeamColor.BLACK;
+        }
+        if (username.equals(gameData.whiteUsername())) {
+            color = ChessGame.TeamColor.WHITE;
+        }
+        if (gameData.game().getTeamTurn() != color) {
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Not your turn");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        // Try to make move
+        try {
+            gameData.game().makeMove(moveCommand.getMove());
+        } catch (Exception e) {
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid move");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        playService.updateGame(gameData);
+        // Send load game to all parties
+        LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
+        CONNECTIONS.broadcast(gameData.gameID(), loadGameMessage);
+        // Remove current session for move made broadcast
+        CONNECTIONS.remove(context.session);
+        // Broadcast move made
+        String moveMessage = getMoveNotification(username, gameData.gameID(), moveCommand.getMove());
+        if (gameEnded(color, gameData)) {
+            GameData completed = new GameData(gameData.gameID(), gameData.whiteUsername(),
+                    gameData.blackUsername(), gameData.gameName(), gameData.game(), true);
+            playService.updateGame(completed);
+        }
+        // Check status of game
+        String statusMessage = getStatusNotification(color, gameData);
+        NotificationServerMessage notificationServerMessage = new NotificationServerMessage(moveMessage);
+        CONNECTIONS.broadcast(gameData.gameID(), notificationServerMessage);
+        // Add current session back in for future broadcasts
+        CONNECTIONS.add(command.getGameID(), context.session);
+        if (statusMessage != null) {
+            notificationServerMessage = new NotificationServerMessage(statusMessage);
+            CONNECTIONS.broadcast(gameData.gameID(), notificationServerMessage);
+        }
+
+    }
+
+    private void handleLeaveMessage(@NotNull WsMessageContext context) throws Exception {
+        UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
+        String username;
+        GameData game;
+        // Try to get username from auth token
+        try {
+            username = playService.getAuth(command.getAuthToken()).username();
+        } catch (Exception e) {
+            // Invalid auth token
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        // Try to get game from game id
+        try {
+            game = playService.getGame(command.getGameID());
+        } catch (Exception e) {
+            // Invalid game id
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        // Update game to remove user
+        String whiteUsername = game.whiteUsername();
+        String blackUsername = game.blackUsername();
+        if (username.equals(game.blackUsername())) {
+            blackUsername = null;
+        }
+        if (username.equals(game.whiteUsername())) {
+            whiteUsername = null;
+        }
+        GameData new_game = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game(), game.complete());
+        // Generate left notification before removing username
+        String msg = getLeftNotification(username, command.getGameID());
+        // Update game
+        playService.updateGame(new_game);
+        // Remove session from concerned parties
+        CONNECTIONS.remove(context.session);
+        // Send notification to concerned parties
+        CONNECTIONS.broadcast(command.getGameID(), new NotificationServerMessage(msg));
+    }
+
+    private void handleResignMessage(@NotNull WsMessageContext context) throws Exception {
+        // TODO: remove print
+        System.out.println("Resign");
+        UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
+        String username;
+        GameData gameData;
+        // Try to get username from auth token
+        try {
+            username = playService.getAuth(command.getAuthToken()).username();
+        } catch (Exception e) {
+            // Invalid auth token
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        // Try to get game from game id
+        try {
+            gameData = playService.getGame(command.getGameID());
+        } catch (Exception e) {
+            // Invalid game id
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        // Check if player
+        ChessGame.TeamColor color = null;
+        if (username.equals(gameData.blackUsername())) {
+            color = ChessGame.TeamColor.BLACK;
+        }
+        if (username.equals(gameData.whiteUsername())) {
+            color = ChessGame.TeamColor.WHITE;
+        }
+        if (color == null) {
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Not your turn");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        GameData new_game = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),
+                gameData.gameName(), gameData.game(), true);
+        // Generate left notification before removing username
+        String msg = getResignNotification(username, command.getGameID());
+        // Update game
+        playService.updateGame(new_game);
+        // Remove session from concerned parties
+        CONNECTIONS.remove(context.session);
+        // Send notification to concerned parties
+        CONNECTIONS.broadcast(command.getGameID(), new NotificationServerMessage(msg));
+    }
+
     @Override
     public void handleMessage(@NotNull WsMessageContext context) throws Exception {
         UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
         switch (command.getCommandType()) {
-            case CONNECT -> {
-                ChessGame game;
-                String username;
-                // Try to get username from auth token
-                try {
-                    username = playService.getAuth(command.getAuthToken()).username();
-                } catch (Exception e) {
-                    // Invalid auth token
-                    ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
-                    context.send(GSON.toJson(errorServerMessage));
-                    break;
-                }
-                // Try to get game from game id
-                try {
-                    game = playService.getGame(command.getGameID()).game();
-                } catch (Exception e) {
-                    // Invalid game id
-                    ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
-                    context.send(GSON.toJson(errorServerMessage));
-                    break;
-                }
-                ServerMessage serverMessage = new LoadGameMessage(game);
-                context.send(GSON.toJson(serverMessage));
-                // Send notification to concerned parties
-                String msg = getJoinNotification(username, command.getGameID());
-                connections.broadcast(command.getGameID(), new NotificationServerMessage(msg));
-                // Add current session to concerned parties
-                connections.add(command.getGameID(), context.session);
-            }
-            case MAKE_MOVE -> {
-                MakeMoveCommand moveCommand = GSON.fromJson(context.message(), MakeMoveCommand.class);
-                GameData gameData;
-                String username;
-                // Try to get username from auth token
-                try {
-                    username = playService.getAuth(command.getAuthToken()).username();
-                } catch (Exception e) {
-                    // Invalid auth token
-                    ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
-                    context.send(GSON.toJson(errorServerMessage));
-                    break;
-                }
-                // Try to get game from game id
-                try {
-                    gameData = playService.getGame(command.getGameID());
-                } catch (Exception e) {
-                    // Invalid game id
-                    ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
-                    context.send(GSON.toJson(errorServerMessage));
-                    break;
-                }
-                // Check if your turn (prohibit observers and opponent from making move)
-                ChessGame.TeamColor color = null;
-                if (username.equals(gameData.blackUsername())) {
-                    color = ChessGame.TeamColor.BLACK;
-                }
-                if (username.equals(gameData.whiteUsername())) {
-                    color = ChessGame.TeamColor.WHITE;
-                }
-                if (gameData.game().getTeamTurn() != color) {
-                    ErrorServerMessage errorServerMessage = new ErrorServerMessage("Not your turn");
-                    context.send(GSON.toJson(errorServerMessage));
-                    break;
-                }
-                // Try to make move
-                try {
-                    gameData.game().makeMove(moveCommand.getMove());
-                } catch (Exception e) {
-                    ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid move");
-                    context.send(GSON.toJson(errorServerMessage));
-                    break;
-                }
-                playService.updateGame(gameData);
-                // Send load game to all parties
-                LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
-                connections.broadcast(gameData.gameID(), loadGameMessage);
-                // Remove current session for move made broadcast
-                connections.remove(context.session);
-                // Broadcast move made
-                String moveMessage = getMoveNotification(username, gameData.gameID(), moveCommand.getMove());
-                if (gameEnded(color, gameData)) {
-                    GameData completed = new GameData(gameData.gameID(), gameData.whiteUsername(),
-                            gameData.blackUsername(), gameData.gameName(), gameData.game(), true);
-                    playService.updateGame(completed);
-                }
-                // Check status of game
-                String statusMessage = getStatusNotification(color, gameData);
-                NotificationServerMessage notificationServerMessage = new NotificationServerMessage(moveMessage);
-                connections.broadcast(gameData.gameID(), notificationServerMessage);
-                // Add current session back in for future broadcasts
-                connections.add(command.getGameID(), context.session);
-                if (statusMessage != null) {
-                    notificationServerMessage = new NotificationServerMessage(statusMessage);
-                    connections.broadcast(gameData.gameID(), notificationServerMessage);
-                }
-
-            }
-            case LEAVE -> {
-                String username;
-                GameData game;
-                // Try to get username from auth token
-                try {
-                    username = playService.getAuth(command.getAuthToken()).username();
-                } catch (Exception e) {
-                    // Invalid auth token
-                    ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
-                    context.send(GSON.toJson(errorServerMessage));
-                    break;
-                }
-                // Try to get game from game id
-                try {
-                    game = playService.getGame(command.getGameID());
-                } catch (Exception e) {
-                    // Invalid game id
-                    ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
-                    context.send(GSON.toJson(errorServerMessage));
-                    break;
-                }
-                // Update game to remove user
-                String whiteUsername = game.whiteUsername();
-                String blackUsername = game.blackUsername();
-                if (username.equals(game.blackUsername())) {
-                    blackUsername = null;
-                }
-                if (username.equals(game.whiteUsername())) {
-                    whiteUsername = null;
-                }
-                GameData new_game = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game(), game.complete());
-                // Generate left notification before removing username
-                String msg = getLeftNotification(username, command.getGameID());
-                // Update game
-                playService.updateGame(new_game);
-                // Remove session from concerned parties
-                connections.remove(context.session);
-                // Send notification to concerned parties
-                connections.broadcast(command.getGameID(), new NotificationServerMessage(msg));
-            }
-            case RESIGN -> {
-                System.out.println("Resign");
-            }
+            case CONNECT -> handleConnectMessage(context);
+            case MAKE_MOVE -> handleMakeMoveMessage(context);
+            case LEAVE -> handleLeaveMessage(context);
+            case RESIGN -> handleResignMessage(context);
         }
 
 
