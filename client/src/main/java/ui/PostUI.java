@@ -77,8 +77,7 @@ public class PostUI {
                 } catch (Exception e) {
                     System.out.println(SET_TEXT_COLOR_RED + e.getMessage());
                 }
-                // WHEN ENABLING GAME UI, CHANGE TO 2
-                return 1;
+                return 2;
             case "observe":
                 if (incorrectArgCount(2, inputs.length)) {
                     System.out.println(SET_TEXT_COLOR_RED + "Error: Wrong number of arguments");

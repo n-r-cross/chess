@@ -1,13 +1,18 @@
 package service;
 
+import model.AuthData;
 import model.GameData;
 
 public class PlayService extends Service {
-    public GameData get(int gameID) throws Exception {
+    public GameData getGame(int gameID) throws Exception {
         return gameData.getGame(gameID);
     }
 
-    public void update(GameData data) throws Exception {
+    public void updateGame(GameData data) throws Exception {
         gameData.updateGame(data);
+    }
+
+    public AuthData getAuth(String token) throws Exception {
+        return authData.getAuth(token);
     }
 }
