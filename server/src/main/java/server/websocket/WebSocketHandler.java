@@ -113,30 +113,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void handleConnectMessage(@NotNull WsMessageContext context) throws Exception {
         UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
-        GameData data;
-        String username;
-        // Try to get username from auth token
-        try {
-            username = playService.getAuth(command.getAuthToken()).username();
-        } catch (Exception e) {
-            // Invalid auth token
-            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
-            context.send(GSON.toJson(errorServerMessage));
-            return;
-        }
-        // Try to get game from game id
-        try {
-            data = playService.getGame(command.getGameID());
-        } catch (Exception e) {
-            // Invalid game id
-            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
-            context.send(GSON.toJson(errorServerMessage));
-            return;
-        }
-        ServerMessage serverMessage = new LoadGameMessage(data.game());
+        String username = playService.getAuth(command.getAuthToken()).username();
+        GameData gameData = playService.getGame(command.getGameID());
+        ServerMessage serverMessage = new LoadGameMessage(gameData.game());
         context.send(GSON.toJson(serverMessage));
         // Send notification to concerned parties
-        String msg = getJoinNotification(username, data);
+        String msg = getJoinNotification(username, gameData);
         CONNECTIONS.broadcast(command.getGameID(), new NotificationServerMessage(msg));
         // Add current session to concerned parties
         CONNECTIONS.add(command.getGameID(), context.session);
@@ -145,26 +127,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void handleMakeMoveMessage(@NotNull WsMessageContext context) throws Exception {
         UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
         MakeMoveCommand moveCommand = GSON.fromJson(context.message(), MakeMoveCommand.class);
-        GameData gameData;
-        String username;
-        // Try to get username from auth token
-        try {
-            username = playService.getAuth(command.getAuthToken()).username();
-        } catch (Exception e) {
-            // Invalid auth token
-            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
-            context.send(GSON.toJson(errorServerMessage));
-            return;
-        }
-        // Try to get game from game id
-        try {
-            gameData = playService.getGame(command.getGameID());
-        } catch (Exception e) {
-            // Invalid game id
-            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
-            context.send(GSON.toJson(errorServerMessage));
-            return;
-        }
+        String username = playService.getAuth(command.getAuthToken()).username();
+        GameData gameData = playService.getGame(command.getGameID());
         // Check if game is active
         if (gameData.complete()) {
             // Game is over
@@ -221,36 +185,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void handleLeaveMessage(@NotNull WsMessageContext context) throws Exception {
         UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
-        String username;
-        GameData game;
-        // Try to get username from auth token
-        try {
-            username = playService.getAuth(command.getAuthToken()).username();
-        } catch (Exception e) {
-            // Invalid auth token
-            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
-            context.send(GSON.toJson(errorServerMessage));
-            return;
-        }
-        // Try to get game from game id
-        try {
-            game = playService.getGame(command.getGameID());
-        } catch (Exception e) {
-            // Invalid game id
-            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
-            context.send(GSON.toJson(errorServerMessage));
-            return;
-        }
+        String username = playService.getAuth(command.getAuthToken()).username();
+        GameData gameData = playService.getGame(command.getGameID());
         // Update game to remove user
-        String whiteUsername = game.whiteUsername();
-        String blackUsername = game.blackUsername();
-        if (username.equals(game.blackUsername())) {
+        String whiteUsername = gameData.whiteUsername();
+        String blackUsername = gameData.blackUsername();
+        if (username.equals(gameData.blackUsername())) {
             blackUsername = null;
         }
-        if (username.equals(game.whiteUsername())) {
+        if (username.equals(gameData.whiteUsername())) {
             whiteUsername = null;
         }
-        GameData new_game = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game(), game.complete());
+        GameData new_game = new GameData(gameData.gameID(), whiteUsername, blackUsername,
+                gameData.gameName(), gameData.game(), gameData.complete());
         // Generate left notification before removing username
         String msg = getLeftNotification(username, command.getGameID());
         // Update game
@@ -263,26 +210,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void handleResignMessage(@NotNull WsMessageContext context) throws Exception {
         UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
-        String username;
-        GameData gameData;
-        // Try to get username from auth token
-        try {
-            username = playService.getAuth(command.getAuthToken()).username();
-        } catch (Exception e) {
-            // Invalid auth token
-            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
-            context.send(GSON.toJson(errorServerMessage));
-            return;
-        }
-        // Try to get game from game id
-        try {
-            gameData = playService.getGame(command.getGameID());
-        } catch (Exception e) {
-            // Invalid game id
-            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
-            context.send(GSON.toJson(errorServerMessage));
-            return;
-        }
+        String username = playService.getAuth(command.getAuthToken()).username();
+        GameData gameData = playService.getGame(command.getGameID());
         // Check if game is active
         if (gameData.complete()) {
             // Game is over
@@ -316,6 +245,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(@NotNull WsMessageContext context) throws Exception {
         UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
+        // Try to get username from auth token
+        try {
+            playService.getAuth(command.getAuthToken());
+        } catch (Exception e) {
+            // Invalid auth token
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        // Try to get game from game id
+        try {
+            playService.getGame(command.getGameID());
+        } catch (Exception e) {
+            // Invalid game id
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
         switch (command.getCommandType()) {
             case CONNECT -> handleConnectMessage(context);
             case MAKE_MOVE -> handleMakeMoveMessage(context);
