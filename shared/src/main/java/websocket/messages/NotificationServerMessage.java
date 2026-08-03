@@ -1,7 +1,5 @@
 package websocket.messages;
 
-import com.google.gson.Gson;
-
 public class NotificationServerMessage extends ServerMessage {
     private String message;
 
@@ -16,10 +14,5 @@ public class NotificationServerMessage extends ServerMessage {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    @Override
-    public String toString() {
-        return new Gson().toJson(this);
     }
 }

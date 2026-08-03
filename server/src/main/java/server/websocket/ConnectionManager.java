@@ -1,7 +1,7 @@
 package server.websocket;
 
 import org.eclipse.jetty.websocket.api.Session;
-import websocket.messages.NotificationServerMessage;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,8 +31,9 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcast(int gameID, NotificationServerMessage notification) {
-        String message = notification.toString();
+    public void broadcast(int gameID, ServerMessage serverMessage) {
+        String message = serverMessage.toString();
+        // TODO: remove debugging print statement
         System.out.println(message);
         if (map.get(gameID) == null) {
             return;
