@@ -68,8 +68,30 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         return msg;
     }
 
-    private String getStatusNotification(GameData data) throws Exception {
+    private String getStatusNotification(ChessGame.TeamColor oppColor, GameData data) {
+        ChessGame.TeamColor color = oppColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        String username = color == ChessGame.TeamColor.WHITE ? data.whiteUsername() : data.blackUsername();
+        String msg = username + "(";
+        msg += color;
+        msg += ") is in ";
+        if (data.game().isInCheckmate(color)) {
+            msg += "CHECKMATE!";
+            return msg;
+        }
+        if (data.game().isInStalemate(color)) {
+            msg += "STALEMATE!";
+            return msg;
+        }
+        if (data.game().isInCheck(color)) {
+            msg += "CHECK!";
+            return msg;
+        }
         return null;
+    }
+
+    private boolean gameEnded(ChessGame.TeamColor oppColor, GameData data) {
+        ChessGame.TeamColor color = oppColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        return ((data.game().isInCheckmate(color)) || (data.game().isInStalemate(color)));
     }
 
     @Override
@@ -157,17 +179,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.remove(context.session);
                 // Broadcast move made
                 String moveMessage = getMoveNotification(username, gameData.gameID(), moveCommand.getMove());
+                if (gameEnded(color, gameData)) {
+                    GameData completed = new GameData(gameData.gameID(), gameData.whiteUsername(),
+                            gameData.blackUsername(), gameData.gameName(), gameData.game(), true);
+                    playService.updateGame(completed);
+                }
                 // Check status of game
-                String statusMessage = getStatusNotification(gameData);
+                String statusMessage = getStatusNotification(color, gameData);
                 NotificationServerMessage notificationServerMessage = new NotificationServerMessage(moveMessage);
                 connections.broadcast(gameData.gameID(), notificationServerMessage);
+                // Add current session back in for future broadcasts
+                connections.add(command.getGameID(), context.session);
                 if (statusMessage != null) {
                     notificationServerMessage = new NotificationServerMessage(statusMessage);
                     connections.broadcast(gameData.gameID(), notificationServerMessage);
                 }
-                // Add current session back in for future broadcasts
-                connections.add(command.getGameID(), context.session);
-
 
             }
             case LEAVE -> {
