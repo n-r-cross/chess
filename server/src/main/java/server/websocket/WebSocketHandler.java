@@ -165,6 +165,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             context.send(GSON.toJson(errorServerMessage));
             return;
         }
+        // Check if game is active
+        if (gameData.complete()) {
+            // Game is over
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Game already over");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
         // Check if your turn (prohibit observers and opponent from making move)
         ChessGame.TeamColor color = null;
         if (username.equals(gameData.blackUsername())) {
@@ -255,8 +262,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void handleResignMessage(@NotNull WsMessageContext context) throws Exception {
-        // TODO: remove print
-        System.out.println("Resign");
         UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
         String username;
         GameData gameData;
@@ -275,6 +280,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (Exception e) {
             // Invalid game id
             ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
+            context.send(GSON.toJson(errorServerMessage));
+            return;
+        }
+        // Check if game is active
+        if (gameData.complete()) {
+            // Game is over
+            ErrorServerMessage errorServerMessage = new ErrorServerMessage("Game already over");
             context.send(GSON.toJson(errorServerMessage));
             return;
         }
@@ -297,8 +309,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String msg = getResignNotification(username, command.getGameID());
         // Update game
         playService.updateGame(new_game);
-        // Remove session from concerned parties
-        CONNECTIONS.remove(context.session);
         // Send notification to concerned parties
         CONNECTIONS.broadcast(command.getGameID(), new NotificationServerMessage(msg));
     }

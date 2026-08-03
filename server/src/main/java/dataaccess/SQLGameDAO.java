@@ -51,20 +51,16 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public int createGame(String gameName) throws Exception {
         try (var conn = getConnection()) {
-            System.out.println("Trying to create game");
             // Add game
             String statement = "INSERT INTO games (gameName, game, complete) VALUES (?, ?, ?)";
             // Execute SQL statements on the connection here
-            System.out.println("About to prepare statement");
             try (var insertStatement = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
-                System.out.println("Prepared statement");
                 insertStatement.setString(1, gameName);
                 ChessGame game = new ChessGame();
                 String gameString = gson.toJson(game);
                 insertStatement.setString(2, gameString);
                 insertStatement.setBoolean(3, false);
                 insertStatement.executeUpdate();
-                System.out.println("Did update");
                 // Get gameID
                 var resultSet = insertStatement.getGeneratedKeys();
                 var id = 0;
