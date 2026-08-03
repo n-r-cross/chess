@@ -3,6 +3,7 @@ package server.websocket;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import io.javalin.websocket.*;
+import model.GameData;
 import org.jetbrains.annotations.NotNull;
 import service.PlayService;
 import websocket.commands.UserGameCommand;
@@ -11,7 +12,7 @@ import websocket.messages.*;
 import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
-    private final ConnectionManager connections = new ConnectionManager();
+    private static final ConnectionManager connections = new ConnectionManager();
     private final PlayService playService = new PlayService();
     private static final Gson GSON = new Gson();
 
@@ -21,9 +22,30 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Connected to game");
     }
 
-    private String getJoinNotification(String username, ChessGame.TeamColor color) {
+    private String getJoinNotification(String username, int gameID) throws Exception {
+        ChessGame.TeamColor color = null;
+        if (Objects.equals(playService.getGame(gameID).whiteUsername(), username)) {
+            color = ChessGame.TeamColor.WHITE;
+        }
+        if (Objects.equals(playService.getGame(gameID).blackUsername(), username)) {
+            color = ChessGame.TeamColor.BLACK;
+        }
         String msg = username + " has joined the game as ";
         msg += Objects.requireNonNullElse(color, "OBSERVER!");
+        return msg;
+    }
+
+    private String getLeftNotification(String username, int gameID) throws Exception {
+        ChessGame.TeamColor color = null;
+        if (Objects.equals(playService.getGame(gameID).whiteUsername(), username)) {
+            color = ChessGame.TeamColor.WHITE;
+        }
+        if (Objects.equals(playService.getGame(gameID).blackUsername(), username)) {
+            color = ChessGame.TeamColor.BLACK;
+        }
+        String msg = username + " (";
+        msg += Objects.requireNonNullElse(color, "OBSERVER");
+        msg += ") has left the game";
         return msg;
     }
 
@@ -33,37 +55,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         UserGameCommand command = GSON.fromJson(context.message(), UserGameCommand.class);
         switch (command.getCommandType()) {
             case CONNECT -> {
-                System.out.println("Connecting!");
                 ChessGame game;
                 String username;
+                // Try to get game from game id
                 try {
                     game = playService.getGame(command.getGameID()).game();
                 } catch (Exception e) {
+                    // Invalid game id
                     ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
                     context.send(GSON.toJson(errorServerMessage));
                     break;
                 }
+                // Try to get username from auth token
                 try {
                     username = playService.getAuth(command.getAuthToken()).username();
                 } catch (Exception e) {
+                    // Invalid auth token
                     ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
                     context.send(GSON.toJson(errorServerMessage));
                     break;
                 }
                 ServerMessage serverMessage = new LoadGameMessage(game);
-                System.out.println(serverMessage);
                 context.send(GSON.toJson(serverMessage));
                 // Send notification to concerned parties
-                ChessGame.TeamColor color = null;
-                if (Objects.equals(playService.getGame(command.getGameID()).whiteUsername(), username)) {
-                    color = ChessGame.TeamColor.WHITE;
-                }
-                if (Objects.equals(playService.getGame(command.getGameID()).blackUsername(), username)) {
-                    color = ChessGame.TeamColor.BLACK;
-                }
-                String msg = getJoinNotification(username, color);
+                String msg = getJoinNotification(username, command.getGameID());
                 connections.broadcast(command.getGameID(), new NotificationServerMessage(msg));
-                //
+                // Add current session to concerned parties
                 connections.add(command.getGameID(), context.session);
             }
             case MAKE_MOVE -> {
@@ -71,6 +88,45 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
             case LEAVE -> {
                 System.out.println("Leaving");
+                String username;
+                GameData game;
+                // Try to get game from game id
+                try {
+                    game = playService.getGame(command.getGameID());
+                } catch (Exception e) {
+                    // Invalid game id
+                    ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid game ID");
+                    context.send(GSON.toJson(errorServerMessage));
+                    break;
+                }
+                // Try to get username from auth token
+                try {
+                    username = playService.getAuth(command.getAuthToken()).username();
+                } catch (Exception e) {
+                    // Invalid auth token
+                    ErrorServerMessage errorServerMessage = new ErrorServerMessage("Invalid auth token");
+                    context.send(GSON.toJson(errorServerMessage));
+                    break;
+                }
+                // Update game to remove user
+                String whiteUsername = game.whiteUsername();
+                String blackUsername = game.blackUsername();
+                if (username.equals(game.blackUsername())) {
+                    blackUsername = null;
+                }
+                if (username.equals(game.whiteUsername())) {
+                    whiteUsername = null;
+                }
+                GameData new_game = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
+                // Generate left notification before removing username
+                String msg = getLeftNotification(username, command.getGameID());
+                // Update game
+                playService.updateGame(new_game);
+                System.out.println(new_game);
+                // Remove session from concerned parties
+                connections.remove(context.session);
+                // Send notification to concerned parties
+                connections.broadcast(command.getGameID(), new NotificationServerMessage(msg));
             }
             case RESIGN -> {
                 System.out.println("Resign");

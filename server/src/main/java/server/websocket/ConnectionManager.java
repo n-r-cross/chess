@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-    public final ConcurrentHashMap<Integer, ConcurrentHashMap<Session, Session>> map = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<Integer, ConcurrentHashMap<Session, Session>> map = new ConcurrentHashMap<>();
 
     public void add(int gameID, Session session) {
         ConcurrentHashMap<Session, Session> participants;
@@ -23,8 +23,11 @@ public class ConnectionManager {
 
     public void remove(Session session) {
         for (Map.Entry<Integer, ConcurrentHashMap<Session, Session>> entry : map.entrySet()) {
-            entry.getValue().remove(session);
-            entry.setValue(entry.getValue());
+            ConcurrentHashMap<Session, Session> participants;
+            participants = new ConcurrentHashMap<>(entry.getValue());
+            participants.remove(session);
+            entry.setValue(participants);
+            map.put(entry.getKey(), entry.getValue());
         }
     }
 
@@ -35,7 +38,6 @@ public class ConnectionManager {
             return;
         }
         for (Map.Entry<Session, Session> entry : map.get(gameID).entrySet()) {
-            entry.setValue(entry.getValue());
             if (entry.getValue().isOpen()) {
                 try {
                     entry.getValue().getRemote().sendString(message);
