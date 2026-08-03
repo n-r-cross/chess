@@ -128,7 +128,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.add(command.getGameID(), context.session);
             }
             case MAKE_MOVE -> {
-                System.out.println("Making move!");
                 MakeMoveCommand moveCommand = GSON.fromJson(context.message(), MakeMoveCommand.class);
                 GameData gameData;
                 String username;

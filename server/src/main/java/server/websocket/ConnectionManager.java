@@ -33,8 +33,6 @@ public class ConnectionManager {
 
     public void broadcast(int gameID, ServerMessage serverMessage) {
         String message = serverMessage.toString();
-        // TODO: remove debugging print statement
-        System.out.println(message);
         if (map.get(gameID) == null) {
             return;
         }

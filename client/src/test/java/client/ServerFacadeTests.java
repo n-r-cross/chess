@@ -132,7 +132,8 @@ public class ServerFacadeTests {
             serverFacade.createGame("light_cycles", token);
             Assertions.assertEquals(ListResult.class, serverFacade.listGames(token).getClass());
             GameData data = serverFacade.listGames(token).games().getFirst();
-            Assertions.assertEquals(new GameData(1, null, null, "light_cycles", new ChessGame()), data);
+            Assertions.assertEquals(new GameData(1, null, null,
+                    "light_cycles", new ChessGame(), false), data);
         } catch (Exception e) {
             fail();
         }
@@ -153,7 +154,8 @@ public class ServerFacadeTests {
             serverFacade.joinGame(WHITE, id, token);
             serverFacade.joinGame(BLACK, id, token);
             GameData data = serverFacade.listGames(token).games().getFirst();
-            Assertions.assertEquals(new GameData(1, "ga", "ga", "light_cycles", new ChessGame()), data);
+            Assertions.assertEquals(new GameData(1, "ga", "ga",
+                    "light_cycles", new ChessGame(), false), data);
         } catch (Exception e) {
             fail();
         }
@@ -174,7 +176,8 @@ public class ServerFacadeTests {
         Assertions.assertThrows(Exception.class, () -> serverFacade.joinGame(BLACK, finalId, "fake-auth"));
         try {
             GameData data = serverFacade.listGames(token).games().getFirst();
-            Assertions.assertEquals(new GameData(1, null, null, "light_cycles", new ChessGame()), data);
+            Assertions.assertEquals(new GameData(1, null, null,
+                    "light_cycles", new ChessGame(), false), data);
         } catch (Exception e) {
             fail();
         }
