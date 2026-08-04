@@ -103,7 +103,7 @@ public class SQLGameDAO implements GameDAO {
         List<GameData> list = new ArrayList<>();
         try (var conn = getConnection()) {
             // Get game from game ID
-            String command = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games";
+            String command = "SELECT gameID, whiteUsername, blackUsername, gameName, game, complete FROM games";
             try (var preparedStatement = conn.prepareStatement(command)) {
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
