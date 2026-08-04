@@ -79,9 +79,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String msg = username + " (";
         msg += Objects.requireNonNullElse(color, "OBSERVER");
         msg += ") has made a move from ";
-        msg += move.getStartPosition();
+        msg += move.getStartPosition().toLetterNumber();
         msg += " to ";
-        msg += move.getEndPosition();
+        msg += move.getEndPosition().toLetterNumber();
         return msg;
     }
 

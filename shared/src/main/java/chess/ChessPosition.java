@@ -111,4 +111,22 @@ public class ChessPosition {
         return "(" + row + ", "
                 + col + ')';
     }
+
+    private String colAsLetter() {
+        return switch (col) {
+            case 0 -> "a";
+            case 1 -> "b";
+            case 2 -> "c";
+            case 3 -> "d";
+            case 4 -> "e";
+            case 5 -> "f";
+            case 6 -> "g";
+            case 7 -> "h";
+            default -> "";
+        };
+    }
+
+    public String toLetterNumber() {
+        return colAsLetter() + (row + 1);
+    }
 }
