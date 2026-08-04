@@ -120,7 +120,8 @@ public class GameUI {
 
     public void help() {
         System.out.println("'leave' to remove yourself from game");
-        System.out.println("'move <LETTER start column> <NUMBER start row> <LETTER end column> <NUMBER end row> [OPTIONAL promotion piece]' to make a move");
+        System.out.print("'move <LETTER start column> <NUMBER start row> ");
+        System.out.println("<LETTER end column> <NUMBER end row> [OPTIONAL promotion piece]' to make a move");
         System.out.println("'redraw' to redraw the board");
         System.out.println("'highlight' to highlight legal moves");
         System.out.println("'resign' to forfeit game");
