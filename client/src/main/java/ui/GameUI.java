@@ -1,6 +1,12 @@
 package ui;
 
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import client.Client;
+
+import java.util.Objects;
+import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
@@ -16,6 +22,31 @@ public class GameUI {
         System.out.print(RESET_TEXT_COLOR + "Game >>> ");
     }
 
+    private int letterToCol(String letter) throws Exception {
+        if (letter.length() > 1) {
+            throw new Exception("Error: Need single letter!");
+        }
+        switch (letter) {
+            case "a":
+                return 1;
+            case "b":
+                return 2;
+            case "c":
+                return 3;
+            case "d":
+                return 4;
+            case "e":
+                return 5;
+            case "f":
+                return 6;
+            case "g":
+                return 7;
+            case "h":
+                return 8;
+        }
+        throw new Exception("Error: Not an acceptable letter!");
+    }
+
     public int run(String input) {
         var inputs = input.split(" ");
         int game_number;
@@ -29,16 +60,57 @@ public class GameUI {
                 return 1;
             case "move":
                 System.out.println("Moving!");
+                if ((inputs.length != 5) && (inputs.length != 6)) {
+                    System.out.println(SET_TEXT_COLOR_RED + "Error: Wrong number of arguments");
+                    return 1;
+                }
+                ChessPosition start = null;
+                ChessPosition end = null;
+                try {
+                    start = new ChessPosition(Integer.parseInt(inputs[2]), letterToCol(inputs[1]));
+                    end = new ChessPosition(Integer.parseInt(inputs[4]), letterToCol(inputs[3]));
+                } catch (Exception e) {
+                    System.out.println(SET_TEXT_COLOR_RED + e.getMessage());
+                }
+                ChessPiece.PieceType promotion = null;
+                if (inputs.length == 6) {
+                    try {
+                        promotion = ChessPiece.PieceType.valueOf(inputs[5]);
+                    } catch (Exception e) {
+                        System.out.println(SET_TEXT_COLOR_RED + "Error: Not a piece type!");
+                    }
+                }
+                ChessMove move;
+                try {
+                    move = new ChessMove(start, end, promotion);
+                    System.out.println(move);
+                    client.makeMove(move);
+                } catch (Exception e) {
+                    System.out.println(SET_TEXT_COLOR_RED + "Error: Failed to make move!");
+                }
                 return 2;
             case "redraw":
-                System.out.println("Redrawing!");
+                client.redraw();
                 return 2;
             case "highlight":
                 System.out.println("Highlighting!");
+                // TODO: code highlighting
+                client.redraw();
                 return 2;
             case "resign":
-                System.out.println("Resigning!");
-
+                Scanner scanner = new Scanner(System.in);
+                System.out.print(SET_TEXT_COLOR_YELLOW + "Confirm resignation? (yes/no): ");
+                String result = scanner.nextLine();
+                if (!Objects.equals(result, "yes")) {
+                    System.out.println();
+                    System.out.println(RESET_TEXT_COLOR + "Resign aborted");
+                    return 2;
+                }
+                try {
+                    client.resign();
+                } catch (Exception e) {
+                    System.out.println(SET_TEXT_COLOR_RED + "Error: couldn't resign");
+                }
                 return 1;
             case "help":
                 help();

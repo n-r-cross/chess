@@ -2,6 +2,7 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import model.GameData;
 import result.ListResult;
@@ -12,6 +13,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationServerMessage;
 import websocket.messages.ServerMessage;
 
+import java.util.Collection;
 import java.util.List;
 
 import static chess.ChessGame.TeamColor.WHITE;
@@ -25,6 +27,7 @@ public class Client implements NotificationHandler {
     private String authToken = "";
     private int connected = -1;
     private ChessGame.TeamColor perspective = WHITE;
+    private ChessGame currentGame;
 
     private List<GameData> games;
 
@@ -104,6 +107,30 @@ public class Client implements NotificationHandler {
         connected = -1;
     }
 
+    public void resign() throws Exception {
+        webSocketFacade.resign(authToken, connected);
+        connected = -1;
+    }
+
+    public void makeMove(ChessMove move) throws Exception {
+        Collection<ChessMove> list = currentGame.validMoves(move.getStartPosition());
+        boolean validated = false;
+        for (ChessMove option : list) {
+            if (option.equals(move)) {
+                validated = true;
+                break;
+            }
+        }
+        if (!validated) {
+            throw new Exception("Invalid move from " + move.getStartPosition() + " to " + move.getEndPosition());
+        }
+        webSocketFacade.makeMove(authToken, connected, move);
+    }
+
+    public void redraw() {
+        printGame(currentGame, perspective);
+    }
+
     private String getCharForPiece(ChessPiece piece) {
         if (piece == null) {
             return EMPTY;
@@ -159,7 +186,7 @@ public class Client implements NotificationHandler {
         ChessBoard board = game.getBoard();
         String triple_thin = THIN + THIN + THIN;
         System.out.print(ERASE_SCREEN);
-        System.out.println();
+        System.out.println(RESET_TEXT_COLOR);
         boolean reversed = color != WHITE;
         printHorizontalIndex(reversed);
         int row_start = 7;
@@ -195,9 +222,11 @@ public class Client implements NotificationHandler {
 
     @Override
     public void notify(ServerMessage notification) {
+        System.out.println();
         switch (notification.getServerMessageType()) {
             case LOAD_GAME -> {
                 LoadGameMessage message = (LoadGameMessage) notification;
+                currentGame = message.getGame();
                 printGame(message.getGame(), perspective);
             }
             case ERROR -> {

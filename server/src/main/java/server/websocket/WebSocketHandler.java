@@ -171,7 +171,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             playService.updateGame(completed);
         }
         // Check status of game
-        String statusMessage = getStatusNotification(color, gameData);
+        String statusMessage = getStatusNotification(color, playService.getGame(gameData.gameID()));
         NotificationServerMessage notificationServerMessage = new NotificationServerMessage(moveMessage);
         CONNECTIONS.broadcast(gameData.gameID(), notificationServerMessage);
         // Add current session back in for future broadcasts
@@ -240,6 +240,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         playService.updateGame(new_game);
         // Send notification to concerned parties
         CONNECTIONS.broadcast(command.getGameID(), new NotificationServerMessage(msg));
+        // Remove session
+        CONNECTIONS.remove(context.session);
     }
 
     @Override
