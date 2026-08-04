@@ -7,21 +7,30 @@ import model.GameData;
 import result.ListResult;
 import result.LoginResult;
 import result.RegisterResult;
+import websocket.messages.ErrorServerMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationServerMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.List;
 
+import static chess.ChessGame.TeamColor.WHITE;
 import static ui.EscapeSequences.*;
 
-public class Client {
+public class Client implements NotificationHandler {
 
     private static ServerFacade serverFacade;
+    private static WebSocketFacade webSocketFacade;
 
     private String authToken = "";
+    private int connected = -1;
+    private ChessGame.TeamColor perspective = WHITE;
 
     private List<GameData> games;
 
-    public Client() {
+    public Client() throws Exception {
         serverFacade = new ServerFacade("localhost", 8080);
+        webSocketFacade = new WebSocketFacade("localhost", 8080, this);
     }
 
     public void login(String username, String password) throws Exception {
@@ -58,7 +67,11 @@ public class Client {
             System.out.print(": WHITE - ");
             System.out.print(games.get(i).whiteUsername());
             System.out.print(" | BLACK - ");
-            System.out.println(games.get(i).blackUsername());
+            System.out.print(games.get(i).blackUsername());
+            if (games.get(i).complete()) {
+                System.out.print(" (FINISHED)");
+            }
+            System.out.println();
         }
     }
 
@@ -68,14 +81,27 @@ public class Client {
         }
         int gameID = games.get(gameNumber).gameID();
         serverFacade.joinGame(color, gameID, authToken);
-        printGame(gameNumber, color);
+        perspective = color;
+        printGame(games.get(gameNumber).game(), perspective);
     }
 
     public void observe(int gameNumber) throws Exception {
         if ((gameNumber < 0) || (gameNumber >= games.size())) {
             throw new Exception("Error: game number doesn't correspond to a game");
         }
-        printGame(gameNumber, ChessGame.TeamColor.WHITE);
+        perspective = WHITE;
+        printGame(games.get(gameNumber).game(), perspective);
+    }
+
+    public void connect(int gameNumber) throws Exception {
+        int gameID = games.get(gameNumber).gameID();
+        connected = gameID;
+        webSocketFacade.connect(authToken, gameID);
+    }
+
+    public void leave() throws Exception {
+        webSocketFacade.leave(authToken, connected);
+        connected = -1;
     }
 
     private String getCharForPiece(ChessPiece piece) {
@@ -129,12 +155,12 @@ public class Client {
         System.out.println(RESET_BG_COLOR);
     }
 
-    private void printGame(int gameNumber, ChessGame.TeamColor color) {
-        ChessGame game = games.get(gameNumber).game();
+    private void printGame(ChessGame game, ChessGame.TeamColor color) {
         ChessBoard board = game.getBoard();
         String triple_thin = THIN + THIN + THIN;
         System.out.print(ERASE_SCREEN);
-        boolean reversed = color != ChessGame.TeamColor.WHITE;
+        System.out.println();
+        boolean reversed = color != WHITE;
         printHorizontalIndex(reversed);
         int row_start = 7;
         int row_finish = -1;
@@ -165,5 +191,23 @@ public class Client {
             System.out.println(RESET_BG_COLOR);
         }
         printHorizontalIndex(reversed);
+    }
+
+    @Override
+    public void notify(ServerMessage notification) {
+        switch (notification.getServerMessageType()) {
+            case LOAD_GAME -> {
+                LoadGameMessage message = (LoadGameMessage) notification;
+                printGame(message.getGame(), perspective);
+            }
+            case ERROR -> {
+                ErrorServerMessage message = (ErrorServerMessage) notification;
+                System.out.println(SET_TEXT_COLOR_RED + message.getMessage());
+            }
+            case NOTIFICATION -> {
+                NotificationServerMessage message = (NotificationServerMessage) notification;
+                System.out.println(SET_TEXT_COLOR_BLUE + message.getMessage());
+            }
+        }
     }
 }

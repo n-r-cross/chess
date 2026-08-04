@@ -11,7 +11,13 @@ public class ClientMain {
 
     public static void main(String[] args) {
         System.out.println("♕ 240 Chess Client");
-        Client client = new Client();
+        Client client;
+        try {
+            client = new Client();
+        } catch (Exception e) {
+            System.out.println("Unable to start server");
+            return;
+        }
         PreUI preUI = new PreUI(client);
         PostUI postUI = new PostUI(client);
         GameUI gameUI = new GameUI(client);

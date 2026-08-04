@@ -21,6 +21,24 @@ public class GameUI {
         int game_number;
         switch (inputs[0]) {
             case "leave":
+                try {
+                    client.leave();
+                } catch (Exception e) {
+                    System.out.println(SET_TEXT_COLOR_RED + "Error: couldn't leave game");
+                }
+                return 1;
+            case "move":
+                System.out.println("Moving!");
+                return 2;
+            case "redraw":
+                System.out.println("Redrawing!");
+                return 2;
+            case "highlight":
+                System.out.println("Highlighting!");
+                return 2;
+            case "resign":
+                System.out.println("Resigning!");
+
                 return 1;
             case "help":
                 help();

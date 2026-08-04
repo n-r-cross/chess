@@ -74,6 +74,7 @@ public class PostUI {
                 }
                 try {
                     client.join(game_number, color);
+                    client.connect(game_number);
                 } catch (Exception e) {
                     System.out.println(SET_TEXT_COLOR_RED + e.getMessage());
                 }
@@ -91,11 +92,11 @@ public class PostUI {
                 }
                 try {
                     client.observe(game_number);
+                    client.connect(game_number);
                 } catch (Exception e) {
                     System.out.println(SET_TEXT_COLOR_RED + e.getMessage());
                 }
-                // WHEN ENABLING GAME UI, CHANGE TO 2
-                return 1;
+                return 2;
             default:
                 System.out.println(SET_TEXT_COLOR_RED + "Error: Invalid command. Type 'help' for list of valid commands");
                 return 1;
