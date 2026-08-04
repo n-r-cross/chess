@@ -108,7 +108,6 @@ public class Client implements NotificationHandler {
 
     public void resign() throws Exception {
         webSocketFacade.resign(authToken, connected);
-        connected = -1;
     }
 
     public void makeMove(ChessMove move) throws Exception {
@@ -182,7 +181,7 @@ public class Client implements NotificationHandler {
     }
 
     private String getBackgroundFormat(int row, int col, ChessGame game, ChessPosition highlight) {
-        if (highlight != null) {
+        if ((highlight != null) && (game.getBoard().getPiece(highlight) != null)) {
             Collection<ChessMove> moves = game.validMoves(highlight);
             Collection<ChessPosition> highlighted = new ArrayList<>();
             for (ChessMove move : moves) {

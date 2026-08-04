@@ -52,7 +52,7 @@ public class GameUI {
             case "move":
                 if ((inputs.length != 5) && (inputs.length != 6)) {
                     System.out.println(SET_TEXT_COLOR_RED + "Error: Wrong number of arguments");
-                    return 1;
+                    return 2;
                 }
                 ChessPosition start = null;
                 ChessPosition end = null;
@@ -108,7 +108,7 @@ public class GameUI {
                 } catch (Exception e) {
                     System.out.println(SET_TEXT_COLOR_RED + "Error: couldn't resign");
                 }
-                return 1;
+                return 2;
             case "help":
                 help();
                 return 2;
