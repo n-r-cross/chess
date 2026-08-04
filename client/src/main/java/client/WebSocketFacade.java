@@ -13,6 +13,8 @@ import websocket.messages.NotificationServerMessage;
 import java.net.URI;
 import java.util.Locale;
 
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
+
 public class WebSocketFacade extends Endpoint {
     Session session;
     private static final Gson GSON = new Gson();
@@ -55,7 +57,7 @@ public class WebSocketFacade extends Endpoint {
     public void connect(String token, int gameID) throws Exception {
         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, token, gameID);
         session.getBasicRemote().sendText(GSON.toJson(command));
-        System.out.println("Connected!");
+        System.out.println(RESET_TEXT_COLOR + "Connected!");
     }
 
     public void leave(String token, int gameID) throws Exception {

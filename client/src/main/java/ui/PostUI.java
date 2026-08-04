@@ -77,6 +77,7 @@ public class PostUI {
                     client.connect(game_number);
                 } catch (Exception e) {
                     System.out.println(SET_TEXT_COLOR_RED + e.getMessage());
+                    return 1;
                 }
                 return 2;
             case "observe":

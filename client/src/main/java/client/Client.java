@@ -1,9 +1,6 @@
 package client;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPiece;
+import chess.*;
 import model.GameData;
 import result.ListResult;
 import result.LoginResult;
@@ -13,6 +10,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationServerMessage;
 import websocket.messages.ServerMessage;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -64,6 +62,7 @@ public class Client implements NotificationHandler {
         ListResult lr = serverFacade.listGames(authToken);
         games = lr.games();
         for (int i = 0; i < games.size(); i++) {
+            System.out.print(RESET_TEXT_COLOR);
             System.out.print(i + 1);
             System.out.print(") ");
             System.out.print(games.get(i).gameName());
@@ -85,7 +84,7 @@ public class Client implements NotificationHandler {
         int gameID = games.get(gameNumber).gameID();
         serverFacade.joinGame(color, gameID, authToken);
         perspective = color;
-        printGame(games.get(gameNumber).game(), perspective);
+        // printGame(games.get(gameNumber).game(), perspective);
     }
 
     public void observe(int gameNumber) throws Exception {
@@ -93,7 +92,7 @@ public class Client implements NotificationHandler {
             throw new Exception("Error: game number doesn't correspond to a game");
         }
         perspective = WHITE;
-        printGame(games.get(gameNumber).game(), perspective);
+        printGame(games.get(gameNumber).game(), perspective, null);
     }
 
     public void connect(int gameNumber) throws Exception {
@@ -127,8 +126,8 @@ public class Client implements NotificationHandler {
         webSocketFacade.makeMove(authToken, connected, move);
     }
 
-    public void redraw() {
-        printGame(currentGame, perspective);
+    public void redraw(ChessPosition position) {
+        printGame(currentGame, perspective, position);
     }
 
     private String getCharForPiece(ChessPiece piece) {
@@ -182,9 +181,45 @@ public class Client implements NotificationHandler {
         System.out.println(RESET_BG_COLOR);
     }
 
-    private void printGame(ChessGame game, ChessGame.TeamColor color) {
+    private String getBackgroundFormat(int row, int col, ChessGame game, ChessPosition highlight) {
+        if (highlight != null) {
+            Collection<ChessMove> moves = game.validMoves(highlight);
+            Collection<ChessPosition> highlighted = new ArrayList<>();
+            for (ChessMove move : moves) {
+                highlighted.add(move.getEndPosition());
+            }
+            String format = "";
+            if (((row + col) % 2) == 1) {
+                if (highlighted.contains(new ChessPosition(row, col, true))) {
+                    format += SET_BG_COLOR_GREEN;
+                } else {
+                    format += SET_BG_COLOR_LIGHT_GREY;
+                }
+            } else {
+                if (highlighted.contains(new ChessPosition(row, col, true))) {
+                    format += SET_BG_COLOR_DARK_GREEN;
+                } else {
+                    format += SET_BG_COLOR_DARK_GREY;
+                }
+            }
+            if (new ChessPosition(row, col, true).equals(highlight)) {
+                format += SET_BG_COLOR_YELLOW;
+            }
+            return format;
+        }
+        String format = "";
+        if (((row + col) % 2) == 1) {
+            format += SET_BG_COLOR_LIGHT_GREY;
+        } else {
+            format += SET_BG_COLOR_DARK_GREY;
+        }
+        return format;
+    }
+
+    private void printGame(ChessGame game, ChessGame.TeamColor color, ChessPosition highlight) {
         ChessBoard board = game.getBoard();
         String triple_thin = THIN + THIN + THIN;
+        // Try to erase screen and reset text color so we print as default
         System.out.print(ERASE_SCREEN);
         System.out.println(RESET_TEXT_COLOR);
         boolean reversed = color != WHITE;
@@ -206,12 +241,7 @@ public class Client implements NotificationHandler {
         for (int i = row_start; i != row_finish; i += row_change) {
             System.out.print(SET_BG_COLOR_BLACK + triple_thin + (1 + i) + triple_thin);
             for (int j = col_start; j != col_finish; j += col_change) {
-                String format = "";
-                if (((i + j) % 2) == 1) {
-                    format += SET_BG_COLOR_LIGHT_GREY;
-                } else {
-                    format += SET_BG_COLOR_DARK_GREY;
-                }
+                String format = getBackgroundFormat(i, j, game, highlight);
                 System.out.print(format + THIN + THIN + getCharForPiece(board.getPiece(i, j)) + THIN + THIN);
             }
             System.out.print(SET_BG_COLOR_BLACK + triple_thin + (1 + i) + triple_thin);
@@ -227,7 +257,7 @@ public class Client implements NotificationHandler {
             case LOAD_GAME -> {
                 LoadGameMessage message = (LoadGameMessage) notification;
                 currentGame = message.getGame();
-                printGame(message.getGame(), perspective);
+                printGame(message.getGame(), perspective, null);
             }
             case ERROR -> {
                 ErrorServerMessage message = (ErrorServerMessage) notification;
